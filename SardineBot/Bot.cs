@@ -72,7 +72,7 @@ namespace SardineBot
 
             // Commands should start with ! (exclamation mark). Anything else is ignore
             int charIndex = 0;
-            bool messageIsCommand = message.HasCharPrefix('!', ref charIndex);
+            bool messageIsCommand = message.HasStringPrefix("!sardine", ref charIndex);
 
             if (messageIsCommand)
             {

@@ -28,7 +28,7 @@ namespace SardineBot
             .AddLogging(options =>
             {
                 options.ClearProviders();
-                options.AddConsole();
+                // options.AddConsole();
             })
             .AddSingleton<IConfiguration>(configuration)
             .AddScoped<IBot, Bot>()
