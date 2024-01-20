@@ -1,57 +1,51 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Reflection;
+
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 namespace SardineBot
 {
-    internal class Bot : IBot
+    public class Bot : IBot
     {
         private ServiceProvider? _serviceProvider;
 
-        private readonly ILogger<Bot> _logger;
         private readonly IConfiguration _configuration;
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
 
-        public Bot(
-            ServiceProvider? serviceProvider, ILogger<Bot> logger, IConfiguration configuration)
+        public Bot(IConfiguration configuration)
         {
-            _logger = logger;
             _configuration = configuration;
 
-            DiscordSocketConfig socketConfig = new()
+            DiscordSocketConfig config = new()
             {
                 GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent
             };
 
-            _client = new DiscordSocketClient(socketConfig);
+            _client = new DiscordSocketClient(config);
             _commands = new CommandService();
         }
 
         public async Task StartAsync(ServiceProvider services)
         {
-            string botToken = _configuration["DiscordToken"] ?? throw new Exception("Bot Token is not present. Check project secrets.");
+            string botToken = _configuration["BotToken"] ?? throw new Exception("Discord Token is missing. Check secrets.");
 
-            _logger.LogInformation($"SardineBot is salted and ready to grill!");
-            
             _serviceProvider = services;
 
-            await _commands.AddModuleAsync(Assembly.GetExecutingAssembly().GetType(), _serviceProvider);
+            await _commands.AddModulesAsync(Assembly.GetExecutingAssembly(), _serviceProvider);
+
+            await _client.LoginAsync(TokenType.Bot, botToken);
+            await _client.StartAsync();
+
+            _client.MessageReceived += HandleCommandAsync;
         }
 
         public async Task StopAsync()
         {
-            _logger.LogInformation("SardineBot was too delicious for this world. Cya later!");
-
             if (_client != null)
             {
                 await _client.LogoutAsync();
@@ -59,28 +53,27 @@ namespace SardineBot
             }
         }
 
-        private async Task HandleCommandAsync(SocketMessage input)
+        private async Task HandleCommandAsync(SocketMessage arg)
         {
-            // Ignore message from any bot
-            if (input is not SocketUserMessage message || message.Author.IsBot)
+            // Ignore messages from bots
+            if (arg is not SocketUserMessage message || message.Author.IsBot)
             {
                 return;
             }
 
-            // Log message for debug
-            _logger.LogInformation($"{DateTime.Now.ToShortTimeString()} - {message.Author}: {message.Content}");
-
-            // Commands should start with ! (exclamation mark). Anything else is ignore
-            int charIndex = 0;
-            bool messageIsCommand = message.HasStringPrefix("!sardine", ref charIndex);
+            // Check if the message starts with !
+            int position = 0;
+            bool messageIsCommand = message.HasStringPrefix("!sardine ", ref position);
 
             if (messageIsCommand)
             {
-                // Execute command if it matches up with any in the ServiceCollection
+                // Execute the command if it exists in the ServiceCollection
                 await _commands.ExecuteAsync(
                     new SocketCommandContext(_client, message),
-                    charIndex,
+                    position,
                     _serviceProvider);
+
+                return;
             }
         }
     }

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "WTBAkOWR5baQIh65PB8AyTjATvs8aBM1MES6gowaqoT/7kC+M67IrmuYEG5I64FG3bGIF9tYGeVGIZ79bp1CWA==",
+  "dgSpecHash": "Hidc4QrQWqtmAiQGeb3o30QJZD2qT+Xi6oohCRFWUVXgvmDc6lFASQdFRz0OqJJPY5LmMW5juRdncuGHnQQl4Q==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Ricardo\\Source\\Repos\\xarop-pa-toss\\SardineBot\\SardineBot\\SardineBot.csproj",
+  "projectFilePath": "C:\\Users\\Ricardo\\source\\repos\\xarop-pa-toss\\SardineBot\\SardineBot\\SardineBot.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Ricardo\\.nuget\\packages\\discord.net\\3.13.0\\discord.net.3.13.0.nupkg.sha512",
     "C:\\Users\\Ricardo\\.nuget\\packages\\discord.net.commands\\3.13.0\\discord.net.commands.3.13.0.nupkg.sha512",
@@ -30,6 +30,7 @@
     "C:\\Users\\Ricardo\\.nuget\\packages\\microsoft.extensions.options\\8.0.0\\microsoft.extensions.options.8.0.0.nupkg.sha512",
     "C:\\Users\\Ricardo\\.nuget\\packages\\microsoft.extensions.primitives\\8.0.0\\microsoft.extensions.primitives.8.0.0.nupkg.sha512",
     "C:\\Users\\Ricardo\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
+    "C:\\Users\\Ricardo\\.nuget\\packages\\restsharp\\110.2.0\\restsharp.110.2.0.nupkg.sha512",
     "C:\\Users\\Ricardo\\.nuget\\packages\\system.codedom\\7.0.0\\system.codedom.7.0.0.nupkg.sha512",
     "C:\\Users\\Ricardo\\.nuget\\packages\\system.collections.immutable\\5.0.0\\system.collections.immutable.5.0.0.nupkg.sha512",
     "C:\\Users\\Ricardo\\.nuget\\packages\\system.interactive.async\\5.0.0\\system.interactive.async.5.0.0.nupkg.sha512",

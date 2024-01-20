@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Ricardo\\Source\\Repos\\xarop-pa-toss\\SardineBot\\SardineBot\\SardineBot.csproj": {}
+    "C:\\Users\\Ricardo\\source\\repos\\xarop-pa-toss\\SardineBot\\SardineBot\\SardineBot.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Ricardo\\Source\\Repos\\xarop-pa-toss\\SardineBot\\SardineBot\\SardineBot.csproj": {
+    "C:\\Users\\Ricardo\\source\\repos\\xarop-pa-toss\\SardineBot\\SardineBot\\SardineBot.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Ricardo\\Source\\Repos\\xarop-pa-toss\\SardineBot\\SardineBot\\SardineBot.csproj",
+        "projectUniqueName": "C:\\Users\\Ricardo\\source\\repos\\xarop-pa-toss\\SardineBot\\SardineBot\\SardineBot.csproj",
         "projectName": "SardineBot",
-        "projectPath": "C:\\Users\\Ricardo\\Source\\Repos\\xarop-pa-toss\\SardineBot\\SardineBot\\SardineBot.csproj",
+        "projectPath": "C:\\Users\\Ricardo\\source\\repos\\xarop-pa-toss\\SardineBot\\SardineBot\\SardineBot.csproj",
         "packagesPath": "C:\\Users\\Ricardo\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Ricardo\\Source\\Repos\\xarop-pa-toss\\SardineBot\\SardineBot\\obj\\",
+        "outputPath": "C:\\Users\\Ricardo\\source\\repos\\xarop-pa-toss\\SardineBot\\SardineBot\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -61,9 +61,17 @@
               "target": "Package",
               "version": "[8.0.0, )"
             },
+            "Microsoft.Extensions.DependencyInjection": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
             "Microsoft.Extensions.Logging": {
               "target": "Package",
               "version": "[8.0.0, )"
+            },
+            "RestSharp": {
+              "target": "Package",
+              "version": "[110.2.0, )"
             }
           },
           "imports": [

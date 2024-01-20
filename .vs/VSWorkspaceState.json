@@ -5,6 +5,6 @@
     "\\SardineBot\\Commands",
     "\\SardineBot\\Commands\\Echo"
   ],
-  "SelectedNode": "\\SardineBot\\Bot.cs",
+  "SelectedNode": "\\SardineBot\\Program.cs",
   "PreviewInSolutionExplorer": false
 }

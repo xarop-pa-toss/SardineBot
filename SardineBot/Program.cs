@@ -1,70 +1,53 @@
-﻿using System;
-using System.Management;
-using System.Reflection;
-using System.Threading.Tasks;
-using Discord;
-using Discord.WebSocket;
-using Microsoft.Extensions.DependencyInjection;
+﻿using System.Reflection;
+
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
+using SardineBot;
 
-namespace SardineBot
+namespace DiscordBot
 {
-    class Program
-{
-    private DiscordSocketClient _client;
-
-    static async Task Main(string[] args) =>
-        MainAsync(args).GetAwaiter().GetResult();
-
-
-    public static async Task MainAsync(string[] args)
+    internal class Program
     {
-        var configuration = new ConfigurationBuilder()
-        .AddUserSecrets(Assembly.GetExecutingAssembly())
-        .Build();
+        private static void Main(string[] args) =>
+            MainAsync(args).GetAwaiter().GetResult();
 
-        var serviceProvider = new ServiceCollection()
-            .AddLogging(options =>
-            {
-                options.ClearProviders();
-                // options.AddConsole();
-            })
-            .AddSingleton<IConfiguration>(configuration)
-            .AddScoped<IBot, Bot>()
-            .BuildServiceProvider();    
-    }
-    public async Task RunBotAsync()
-    {
-        // Listen for Events
-        _client = new DiscordSocketClient();
-        _client.Log += LogAsync;
-        _client.Ready += () => 
-		{
-			Console.WriteLine("The Sardine is ready to grill!!");
-			return Task.CompletedTask;
-		};
-        _client.MessageReceived += MessageReceivedAsync;
-
-        await _client.LoginAsync(TokenType.Bot, Secrets.BOT_TOKEN);
-        await _client.StartAsync();
-
-        await Task.Delay(-1);
-    }
-
-    private Task LogAsync(LogMessage log)
-    {
-        Console.WriteLine(log);
-        return Task.CompletedTask;
-    }
-    
-    private async Task MessageReceivedAsync(SocketMessage message)
-    {
-        if (message.Content.ToLower() == "edgar")
+        private static async Task MainAsync(string[] args)
         {
-            await message.Channel.SendMessageAsync("é uma beca panisgas 💜");
+            var configuration = new ConfigurationBuilder()
+                .AddUserSecrets(Assembly.GetExecutingAssembly())
+                .Build();
+
+            var serviceProvider = new ServiceCollection()
+                .AddSingleton<IConfiguration>(configuration)
+                .AddScoped<IBot, Bot>()
+                .BuildServiceProvider();
+
+            try
+            {
+                IBot bot = serviceProvider.GetRequiredService<IBot>();
+
+                await bot.StartAsync(serviceProvider);
+
+                Console.WriteLine("SardineBot is salted and ready to grill!!");
+
+                do
+                {
+                    var keyInfo = Console.ReadKey();
+
+                    if (keyInfo.Key == ConsoleKey.Q)
+                    {
+                        Console.WriteLine("\nSardineBot was too delicious for this world...");
+
+                        await bot.StopAsync();
+                        return;
+                    }
+                } while (true);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+                Environment.Exit(-1);
+            }
         }
     }
-}
-
 }
