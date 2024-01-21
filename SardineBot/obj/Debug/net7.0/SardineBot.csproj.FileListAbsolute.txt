@@ -84,3 +84,4 @@ C:\Users\Ricardo\Source\Repos\xarop-pa-toss\SardineBot\SardineBot\obj\Debug\net7
 C:\Users\Ricardo\Source\Repos\xarop-pa-toss\SardineBot\SardineBot\obj\Debug\net7.0\ref\SardineBot.dll
 C:\Users\Ricardo\source\repos\xarop-pa-toss\SardineBot\SardineBot\bin\Debug\net7.0\RestSharp.dll
 C:\Users\Ricardo\source\repos\xarop-pa-toss\SardineBot\SardineBot\bin\Debug\net7.0\Google.Apis.Storage.v1.dll
+C:\Users\Ricardo\source\repos\xarop-pa-toss\SardineBot\SardineBot\bin\Debug\net7.0\Commands\GoogleSheets\GoogleSheetsKey.json

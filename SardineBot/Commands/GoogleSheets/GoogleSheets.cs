@@ -15,6 +15,7 @@ using Google.Apis.Sheets.v4;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.Extensions.Logging;
 using Google.Apis.Sheets.v4.Data;
+using System.Reflection;
 
 namespace SardineBot.Commands.GoogleSheets
 {
@@ -30,7 +31,7 @@ namespace SardineBot.Commands.GoogleSheets
         [Command("quotas")]
         [Summary("Busca estado das quotas do user ao ficheiro Google Sheets na Drive do clube")]
 
-        public async Task ExecuteAsync([Remainder][Summary("Buscar estado das quotas no ficheiro Google Sheets \"Lista Sócios\"")] string phrase)
+        public async Task ExecuteAsync([Summary("Buscar estado das quotas no ficheiro Google Sheets \"Lista Sócios\"")] string phrase)
         {
             if (string.IsNullOrEmpty(phrase))
             {
@@ -39,7 +40,7 @@ namespace SardineBot.Commands.GoogleSheets
             }
 
             SheetsController sheetsControler = new SheetsController(_configuration);
-            ValueRange valueRange = await sheetsControler.ReadRangeFromSheet(_configuration["GoogleSheets_SheetQuotasToken"], "A3");
+            ValueRange valueRange = await sheetsControler.ReadRangeFromSheet("GoogleSheets_ListaSociosFileID", "A3");
 
             await ReplyAsync(valueRange.Values[0][0].ToString());
         }
@@ -49,27 +50,22 @@ namespace SardineBot.Commands.GoogleSheets
     {
         private readonly IConfiguration _configuration;
         private static SheetsService _sheetsService;
-        private readonly string JSONPATH = Path.Combine(
-            AppDomain.CurrentDomain.BaseDirectory,
-            "GoogleSheets",
-            "GoogleSheetsKey.json");
+        private static string _jsonPath { get; set; }
 
-        internal SheetsController(IConfiguration configuration)
+        public SheetsController(IConfiguration configuration)
         {
+            if (_jsonPath == null) { SetGoogleSheetsKeyJsonPath(); }
             if (_sheetsService == null) { InitializeSheetsService(); }
             _configuration = configuration;
         }
 
-        internal async Task<Google.Apis.Sheets.v4.Data.ValueRange> ReadRangeFromSheet(string sheetIDJsonKey, string range)
+        internal async Task<Google.Apis.Sheets.v4.Data.ValueRange> ReadRangeFromSheet(string fileID, string range)
         {
-            if (_configuration[sheetIDJsonKey] == null)
-            {
-                throw new Exception("Urban Dictionary token is missing. Check secrets.");
-            }
+            if (_configuration[fileID] == null) { Console.WriteLine("Urban Dictionary token is missing. Check secrets."); throw new Exception(); }
 
             try
             {
-                var response = await _sheetsService.Spreadsheets.Values.Get(_configuration[sheetIDJsonKey], range).ExecuteAsync();
+                var response = await _sheetsService.Spreadsheets.Values.Get(_configuration[fileID], range).ExecuteAsync();
 
                 // Return only if not null
                 if (response.Values != null && response.Values.Count > 0)
@@ -85,23 +81,44 @@ namespace SardineBot.Commands.GoogleSheets
             }
             }
 
+
+
         private void InitializeSheetsService()
         {
-            // Create credentials from the JSON file taken from Google Service Account
-            GoogleCredential credential;
-            using (FileStream jsonStream = new FileStream(JSONPATH, FileMode.Open, FileAccess.Read))
+            try
             {
-                credential = GoogleCredential
-                    .FromJson(jsonStream.ToString())
-                    .CreateScoped(SheetsService.Scope.Spreadsheets);
-            }
+                // Create credentials from the JSON file taken from Google Service Account
+                GoogleCredential credential;
 
-            // Create static Sheets API service
-            _sheetsService = new SheetsService(new BaseClientService.Initializer()
+                credential = GoogleCredential
+                    .FromJson(File.ReadAllText(_jsonPath))
+                    .CreateScoped(SheetsService.Scope.Spreadsheets);
+
+                // Create static Sheets API service
+                _sheetsService = new SheetsService(new BaseClientService.Initializer()
+                {
+                    ApplicationName = "SardineBot",
+                    HttpClientInitializer = credential,                    
+                });
+            }
+            catch (Exception e)
             {
-                ApplicationName = "SardineBot",
-                HttpClientInitializer = credential
-            });
+                throw new Exception(e.ToString());
+            }
+        }
+
+        private void SetGoogleSheetsKeyJsonPath()
+        {
+            // *** GPT CODE - did not change ***
+            // Get the location of the currently executing assembly (your executable)
+            string assemblyLocation = Assembly.GetExecutingAssembly().Location;
+
+            // Get the directory of the assembly
+            string assemblyDirectory = Path.GetDirectoryName(assemblyLocation);
+
+            // Combine the assembly directory with the relative path to your JSON file
+            string relativePath = Path.Combine("Commands", "GoogleSheets", "GoogleSheetsKey.json");
+            _jsonPath = Path.Combine(assemblyDirectory, relativePath);          
         }
     }
 }

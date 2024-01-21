@@ -15,6 +15,7 @@ namespace SardineBot.Commands.UrbanDictionary
     public class UrbanDictionary : ModuleBase<SocketCommandContext>
     {
         private readonly IConfiguration _configuration;
+
         public UrbanDictionary(IConfiguration configuration)
         {
             _configuration = configuration;
