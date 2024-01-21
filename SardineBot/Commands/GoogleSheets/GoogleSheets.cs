@@ -14,6 +14,7 @@ using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Auth.OAuth2;
 using Microsoft.Extensions.Logging;
+using Google.Apis.Sheets.v4.Data;
 
 namespace SardineBot.Commands.GoogleSheets
 {
@@ -38,10 +39,9 @@ namespace SardineBot.Commands.GoogleSheets
             }
 
             SheetsController sheetsControler = new SheetsController(_configuration);
-            var rangeValue = 
+            ValueRange valueRange = await sheetsControler.ReadRangeFromSheet(_configuration["GoogleSheets_SheetQuotasToken"], "A3");
 
-
-
+            await ReplyAsync(valueRange.Values[0][0].ToString());
         }
     }
 
@@ -60,7 +60,7 @@ namespace SardineBot.Commands.GoogleSheets
             _configuration = configuration;
         }
 
-        internal async Task<object> ReadRangeFromSheet(string sheetIDJsonKey, string range)
+        internal async Task<Google.Apis.Sheets.v4.Data.ValueRange> ReadRangeFromSheet(string sheetIDJsonKey, string range)
         {
             if (_configuration[sheetIDJsonKey] == null)
             {
@@ -70,6 +70,13 @@ namespace SardineBot.Commands.GoogleSheets
             try
             {
                 var response = await _sheetsService.Spreadsheets.Values.Get(_configuration[sheetIDJsonKey], range).ExecuteAsync();
+
+                // Return only if not null
+                if (response.Values != null && response.Values.Count > 0)
+                {
+                    return response;
+                }
+
                 return response;
             }
             catch (Exception ex)

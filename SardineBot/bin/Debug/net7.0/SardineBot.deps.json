@@ -10,6 +10,7 @@
         "dependencies": {
           "Discord.Net": "3.13.0",
           "Google.Apis.Sheets.v4": "1.66.0.3148",
+          "Google.Apis.Storage.v1": "1.66.0.3291",
           "Microsoft.Extensions.Configuration": "8.0.0",
           "Microsoft.Extensions.Configuration.UserSecrets": "8.0.0",
           "Microsoft.Extensions.DependencyInjection": "8.0.0",
@@ -150,6 +151,18 @@
           "lib/net6.0/Google.Apis.Sheets.v4.dll": {
             "assemblyVersion": "1.66.0.3148",
             "fileVersion": "1.66.0.3148"
+          }
+        }
+      },
+      "Google.Apis.Storage.v1/1.66.0.3291": {
+        "dependencies": {
+          "Google.Apis": "1.66.0",
+          "Google.Apis.Auth": "1.66.0"
+        },
+        "runtime": {
+          "lib/net6.0/Google.Apis.Storage.v1.dll": {
+            "assemblyVersion": "1.66.0.3291",
+            "fileVersion": "1.66.0.3291"
           }
         }
       },
@@ -501,6 +514,13 @@
       "sha512": "sha512-wEXasGG6wiy6e+hmVGbBy2fsOTx3q8essUVVzfAG4k1gTPES4sF/eAM4DhTg2zlOKmxHGeog93lXbslX16A7cA==",
       "path": "google.apis.sheets.v4/1.66.0.3148",
       "hashPath": "google.apis.sheets.v4.1.66.0.3148.nupkg.sha512"
+    },
+    "Google.Apis.Storage.v1/1.66.0.3291": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-izHuDJ2j2ztLE0P8LKp1n1rLcb7sv7Ql5bzB/FsUGz4fZ2k9eUs2b8vMyO2CTnt0C11vTLXiQhn758ytTtOtnA==",
+      "path": "google.apis.storage.v1/1.66.0.3291",
+      "hashPath": "google.apis.storage.v1.1.66.0.3291.nupkg.sha512"
     },
     "Microsoft.Extensions.Configuration/8.0.0": {
       "type": "package",
