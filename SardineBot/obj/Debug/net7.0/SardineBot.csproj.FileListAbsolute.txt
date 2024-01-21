@@ -82,3 +82,4 @@ C:\Users\Ricardo\Source\Repos\xarop-pa-toss\SardineBot\SardineBot\bin\Debug\net7
 C:\Users\Ricardo\Source\Repos\xarop-pa-toss\SardineBot\SardineBot\obj\Debug\net7.0\SardineBot.csproj.CopyComplete
 C:\Users\Ricardo\Source\Repos\xarop-pa-toss\SardineBot\SardineBot\obj\Debug\net7.0\SardineBot.genruntimeconfig.cache
 C:\Users\Ricardo\Source\Repos\xarop-pa-toss\SardineBot\SardineBot\obj\Debug\net7.0\ref\SardineBot.dll
+C:\Users\Ricardo\source\repos\xarop-pa-toss\SardineBot\SardineBot\bin\Debug\net7.0\RestSharp.dll

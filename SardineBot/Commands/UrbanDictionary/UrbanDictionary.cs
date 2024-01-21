@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 
 using Discord.Commands;
+using Microsoft.Extensions.Configuration;
 using RestSharp;
 
 
@@ -13,9 +14,14 @@ namespace SardineBot.Commands.UrbanDictionary
 {
     public class UrbanDictionary : ModuleBase<SocketCommandContext>
     {
+        private readonly IConfiguration _configuration;
+        public UrbanDictionary(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
         [Command("ud")]
         [Summary("Vai buscar a definição ao Urban Dictionary")]
-
         public async Task ExecuteAsync([Remainder][Summary("Termo a procurar no Urban Dictionary")] string phrase)
         {
             if (string.IsNullOrEmpty(phrase))
@@ -24,29 +30,33 @@ namespace SardineBot.Commands.UrbanDictionary
                 return;
             }
 
-            await ReplyAsync(phrase);
+            await GetResponseFromUD(phrase);
         }
 
         private async Task GetResponseFromUD(string phrase)
         {
-            var options = new RestClientOptions("https://mashape-community-urban-dictionary.p.rapidapi.com/define?term=wat");
+            string UDToken = _configuration["RapidAPI_UrbanDictionaryToken"] ?? throw new Exception("Urban Dictionary token is missing. Check secrets.");
 
-            var client = new RestClient(options);
-            var request = new RestRequest(phrase,Method.Get);
+            //var options = new RestClientOptions( + phrase);
+            var client = new RestClient("https://mashape-community-urban-dictionary.p.rapidapi.com/define?");
 
-            request.AddHeader("X-RapidAPI-Key", RapidAPI_UrbanDictionaryToken);
+            var request = new RestRequest();
+
+            request.AddHeader("X-RapidAPI-Key", UDToken);
             request.AddHeader("X-RapidAPI-Host", "mashape-community-urban-dictionary.p.rapidapi.com");
-            
+            request.AddParameter("term", phrase);
+
             var response = await client.GetAsync<UrbanDictionaryResponse>(request);
 
-            if (response?.List == null || !response.List.Any())
+
+            if (response.List == null || !response.List.Any())
             {
-                await ReplyAsync("Não foi encontrada definição para o termo procurado... aprende a escrever burro.");
+                await ReplyAsync("Não foi encontrada definição para o que procuraste... aprende a escrever burro.");
             }
             else
             {
                 await ReplyAsync($"_{phrase}?_");
-                await ReplyAsync(response.List[0].Definition);
+                await ReplyAsync(response.List[0].Definition.ToString());
             }
         }
     }
