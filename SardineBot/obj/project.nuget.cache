@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "Hidc4QrQWqtmAiQGeb3o30QJZD2qT+Xi6oohCRFWUVXgvmDc6lFASQdFRz0OqJJPY5LmMW5juRdncuGHnQQl4Q==",
+  "dgSpecHash": "foESyfTOfBZzjWNBmRwuzQHQ5KePkROWSqoM0edFao1I1E2M7x7bhEhjHxnCsu46NlpnztgdtmMO9e5ZPkdckA==",
   "success": true,
   "projectFilePath": "C:\\Users\\Ricardo\\source\\repos\\xarop-pa-toss\\SardineBot\\SardineBot\\SardineBot.csproj",
   "expectedPackageFiles": [
@@ -15,6 +15,7 @@
     "C:\\Users\\Ricardo\\.nuget\\packages\\google.apis.auth\\1.66.0\\google.apis.auth.1.66.0.nupkg.sha512",
     "C:\\Users\\Ricardo\\.nuget\\packages\\google.apis.core\\1.66.0\\google.apis.core.1.66.0.nupkg.sha512",
     "C:\\Users\\Ricardo\\.nuget\\packages\\google.apis.sheets.v4\\1.66.0.3148\\google.apis.sheets.v4.1.66.0.3148.nupkg.sha512",
+    "C:\\Users\\Ricardo\\.nuget\\packages\\google.apis.storage.v1\\1.66.0.3291\\google.apis.storage.v1.1.66.0.3291.nupkg.sha512",
     "C:\\Users\\Ricardo\\.nuget\\packages\\microsoft.extensions.configuration\\8.0.0\\microsoft.extensions.configuration.8.0.0.nupkg.sha512",
     "C:\\Users\\Ricardo\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\8.0.0\\microsoft.extensions.configuration.abstractions.8.0.0.nupkg.sha512",
     "C:\\Users\\Ricardo\\.nuget\\packages\\microsoft.extensions.configuration.fileextensions\\8.0.0\\microsoft.extensions.configuration.fileextensions.8.0.0.nupkg.sha512",

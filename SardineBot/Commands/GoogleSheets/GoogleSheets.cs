@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -9,8 +10,10 @@ using Discord.Commands;
 using Microsoft.Extensions.Configuration;
 using RestSharp;
 
-using Google.Apis.Auth;
-using Google.Apis.Sheets;
+using Google.Apis.Services;
+using Google.Apis.Sheets.v4;
+using Google.Apis.Auth.OAuth2;
+using Microsoft.Extensions.Logging;
 
 namespace SardineBot.Commands.GoogleSheets
 {
@@ -30,13 +33,68 @@ namespace SardineBot.Commands.GoogleSheets
         {
             if (string.IsNullOrEmpty(phrase))
             {
-                await ReplyAsync($"Utilização: !sardine ud <termo a procurar>");
+                await ReplyAsync($"Utilização: !sardine quotas");
                 return;
             }
 
-            await GetQuotas();
+            SheetsController sheetsControler = new SheetsController(_configuration);
+            var rangeValue = 
+
+
+
+        }
+    }
+
+    internal class SheetsController
+    {
+        private readonly IConfiguration _configuration;
+        private static SheetsService _sheetsService;
+        private readonly string JSONPATH = Path.Combine(
+            AppDomain.CurrentDomain.BaseDirectory,
+            "GoogleSheets",
+            "GoogleSheetsKey.json");
+
+        internal SheetsController(IConfiguration configuration)
+        {
+            if (_sheetsService == null) { InitializeSheetsService(); }
+            _configuration = configuration;
         }
 
+        internal async Task<object> ReadRangeFromSheet(string sheetIDJsonKey, string range)
+        {
+            if (_configuration[sheetIDJsonKey] == null)
+            {
+                throw new Exception("Urban Dictionary token is missing. Check secrets.");
+            }
 
+            try
+            {
+                var response = await _sheetsService.Spreadsheets.Values.Get(_configuration[sheetIDJsonKey], range).ExecuteAsync();
+                return response;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Erro ao ler do Google Sheets.\n Erro: {ex.Message}");
+            }
+            }
+
+        private void InitializeSheetsService()
+        {
+            // Create credentials from the JSON file taken from Google Service Account
+            GoogleCredential credential;
+            using (FileStream jsonStream = new FileStream(JSONPATH, FileMode.Open, FileAccess.Read))
+            {
+                credential = GoogleCredential
+                    .FromJson(jsonStream.ToString())
+                    .CreateScoped(SheetsService.Scope.Spreadsheets);
+            }
+
+            // Create static Sheets API service
+            _sheetsService = new SheetsService(new BaseClientService.Initializer()
+            {
+                ApplicationName = "SardineBot",
+                HttpClientInitializer = credential
+            });
+        }
     }
 }

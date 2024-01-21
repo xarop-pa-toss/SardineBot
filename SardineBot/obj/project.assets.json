@@ -186,6 +186,23 @@
           }
         }
       },
+      "Google.Apis.Storage.v1/1.66.0.3291": {
+        "type": "package",
+        "dependencies": {
+          "Google.Apis": "1.66.0",
+          "Google.Apis.Auth": "1.66.0"
+        },
+        "compile": {
+          "lib/net6.0/Google.Apis.Storage.v1.dll": {
+            "related": ".pdb;.xml"
+          }
+        },
+        "runtime": {
+          "lib/net6.0/Google.Apis.Storage.v1.dll": {
+            "related": ".pdb;.xml"
+          }
+        }
+      },
       "Microsoft.Extensions.Configuration/8.0.0": {
         "type": "package",
         "dependencies": {
@@ -870,6 +887,28 @@
         "lib/netstandard2.0/Google.Apis.Sheets.v4.dll",
         "lib/netstandard2.0/Google.Apis.Sheets.v4.pdb",
         "lib/netstandard2.0/Google.Apis.Sheets.v4.xml"
+      ]
+    },
+    "Google.Apis.Storage.v1/1.66.0.3291": {
+      "sha512": "izHuDJ2j2ztLE0P8LKp1n1rLcb7sv7Ql5bzB/FsUGz4fZ2k9eUs2b8vMyO2CTnt0C11vTLXiQhn758ytTtOtnA==",
+      "type": "package",
+      "path": "google.apis.storage.v1/1.66.0.3291",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE",
+        "NuGetIcon.png",
+        "google.apis.storage.v1.1.66.0.3291.nupkg.sha512",
+        "google.apis.storage.v1.nuspec",
+        "lib/net462/Google.Apis.Storage.v1.dll",
+        "lib/net462/Google.Apis.Storage.v1.pdb",
+        "lib/net462/Google.Apis.Storage.v1.xml",
+        "lib/net6.0/Google.Apis.Storage.v1.dll",
+        "lib/net6.0/Google.Apis.Storage.v1.pdb",
+        "lib/net6.0/Google.Apis.Storage.v1.xml",
+        "lib/netstandard2.0/Google.Apis.Storage.v1.dll",
+        "lib/netstandard2.0/Google.Apis.Storage.v1.pdb",
+        "lib/netstandard2.0/Google.Apis.Storage.v1.xml"
       ]
     },
     "Microsoft.Extensions.Configuration/8.0.0": {
@@ -1725,6 +1764,7 @@
     "net7.0": [
       "Discord.Net >= 3.13.0",
       "Google.Apis.Sheets.v4 >= 1.66.0.3148",
+      "Google.Apis.Storage.v1 >= 1.66.0.3291",
       "Microsoft.Extensions.Configuration >= 8.0.0",
       "Microsoft.Extensions.Configuration.UserSecrets >= 8.0.0",
       "Microsoft.Extensions.DependencyInjection >= 8.0.0",
@@ -1784,6 +1824,10 @@
           "Google.Apis.Sheets.v4": {
             "target": "Package",
             "version": "[1.66.0.3148, )"
+          },
+          "Google.Apis.Storage.v1": {
+            "target": "Package",
+            "version": "[1.66.0.3291, )"
           },
           "Microsoft.Extensions.Configuration": {
             "target": "Package",

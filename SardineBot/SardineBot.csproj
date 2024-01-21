@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Discord.Net" Version="3.13.0" />
     <PackageReference Include="Google.Apis.Sheets.v4" Version="1.66.0.3148" />
+    <PackageReference Include="Google.Apis.Storage.v1" Version="1.66.0.3291" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
 	  <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
