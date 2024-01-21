@@ -21,7 +21,7 @@ namespace SardineBot.Commands.UrbanDictionary
         }
 
         [Command("ud")]
-        [Summary("Vai buscar a definição ao Urban Dictionary")]
+        [Summary("Busca definição do termo dado no Urban Dictionary")]
         public async Task ExecuteAsync([Remainder][Summary("Termo a procurar no Urban Dictionary")] string phrase)
         {
             if (string.IsNullOrEmpty(phrase))
