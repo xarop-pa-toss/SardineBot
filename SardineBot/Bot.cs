@@ -12,11 +12,11 @@ namespace SardineBot
     public class Bot : IBot
     {
         private ServiceProvider? _serviceProvider;
-
+        
         private readonly IConfiguration _configuration;
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
-
+        
         public Bot(IConfiguration configuration)
         {
             _configuration = configuration;

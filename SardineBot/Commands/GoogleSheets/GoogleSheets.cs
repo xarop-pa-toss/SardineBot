@@ -21,6 +21,7 @@ namespace SardineBot.Commands.GoogleSheets
 {
     public class GoogleSheets : ModuleBase<SocketCommandContext>
     {
+        
         private readonly IConfiguration _configuration;
 
         public GoogleSheets(IConfiguration configuration)
