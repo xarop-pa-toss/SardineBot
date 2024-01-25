@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using System.Runtime.CompilerServices;
 
 namespace SardineBot
 {
@@ -30,6 +31,8 @@ namespace SardineBot
             _commands = new CommandService();
         }
 
+        // LOGGING - LogService.LogAsync
+
         public async Task StartAsync(ServiceProvider services)
         {
             string botToken = _configuration["BotToken"] ?? throw new Exception("Discord Token is missing. Check secrets.");
@@ -53,6 +56,7 @@ namespace SardineBot
             }
         }
 
+       
         private async Task HandleCommandAsync(SocketMessage arg)
         {
             // Ignore messages from bots
@@ -60,7 +64,7 @@ namespace SardineBot
             {
                 return;
             }
-
+            
             // Check if the message starts with !
             int position = 0;
             bool messageIsCommand = message.HasStringPrefix("!sardine ", ref position);

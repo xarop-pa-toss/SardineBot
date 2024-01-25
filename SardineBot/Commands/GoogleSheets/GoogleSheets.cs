@@ -60,9 +60,9 @@ namespace SardineBot.Commands.GoogleSheets
             _configuration = configuration;
         }
 
-        internal async Task<Google.Apis.Sheets.v4.Data.ValueRange> ReadRangeFromSheet(string fileID, string range)
+        internal async Task<Google.Apis.Sheets.v4.Data.ValueRange>ReadRangeFromSheet(string fileID, string range)
         {
-            if (_configuration[fileID] == null) { Console.WriteLine("Urban Dictionary token is missing. Check secrets."); throw new Exception(); }
+            if (_configuration[fileID] == null) { Console.WriteLine("FileID token is missing. Check secrets."); throw new Exception(); }
 
             try
             {
@@ -80,7 +80,7 @@ namespace SardineBot.Commands.GoogleSheets
             {
                 throw new Exception($"Erro ao ler do Google Sheets.\n Erro: {ex.Message}");
             }
-            }
+        }
 
 
 
