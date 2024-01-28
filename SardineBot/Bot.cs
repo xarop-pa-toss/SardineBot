@@ -9,6 +9,10 @@ using Discord.WebSocket;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
 using Discord.Net;
+using SardineBot.Commands;
+using SardineBot.Commands.UrbanDictionary;
+using SardineBot.Commands.GoogleSheets;
+using SardineBot.Commands.Echo;
 
 namespace SardineBot
 {
@@ -20,6 +24,8 @@ namespace SardineBot
         private readonly IConfiguration _configuration;
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
+
+        private SlashCommandHandler _CommandHandler;
         private LogService _LogService;
       
         public Bot(IConfiguration configuration)
@@ -34,8 +40,7 @@ namespace SardineBot
             _client = new DiscordSocketClient(config);
             _commands = new CommandService();
             _LogService = new LogService(_client, _commands);
-
-            CreateCommands();
+            _CommandHandler = new SlashCommandHandler(_client, _commands, _configuration);
         }
 
 
@@ -50,7 +55,9 @@ namespace SardineBot
             await _client.LoginAsync(TokenType.Bot, botToken);
             await _client.StartAsync();
 
-            _client.SlashCommandExecuted += HandleSlashCommandAsync;
+            SlashCommandCreator CreateCommands = new SlashCommandCreator(_client, _commands, _configuration);
+
+            _client.SlashCommandExecuted += SlashCommandHandlerAsync;
         }
 
         public async Task StopAsync()
@@ -62,67 +69,29 @@ namespace SardineBot
             }
         }
 
-
-        private void CreateCommands()
+        private async Task SlashCommandHandlerAsync(SocketSlashCommand command)
         {
-            CreateGlobalCommand("urban", "Vai buscar definição ao Urban Dictionary", true);
-            CreateGlobalCommand("quotas", "Tás com a consciência pesada né caloteiro?!", true);
-        }
-
-        private async Task CreateGlobalCommand(string name, string description, bool withDMPermission)
-        {
-            //https://discordnet.dev/guides/int_basics/application-commands/slash-commands/creating-slash-commands.html
-            // Create SlashCommandBuilder followed by client.CreateApplicationCommandAsync in a try-catch.
-            // If it fails, it will create a ApplicationCommandException
-
-            var globalCommand = new SlashCommandBuilder();
-            globalCommand.WithName(name);
-            globalCommand.WithDescription(description);
-            globalCommand.WithDMPermission(true);
-
-            try
+            // Switch statement for each of the commands created.
+            switch(command.Data.Name)
             {
-                await _client.CreateGlobalApplicationCommandAsync(globalCommand.Build());
+                case "urban":
+                    UrbanDictionary urbanCommand = new UrbanDictionary(_configuration);
+                    await urbanCommand.ExecuteAsync(command);
+                    break;
+                case "quotas":
+                    GoogleSheets googleSheets = new GoogleSheets(_configuration);
+                    await googleSheets.ExecuteAsync(command);
+                    break;
+                case "echo":
+                    Echo echo = new Echo();
+                    echo.ExecuteAsync(command);
+                    break;
             }
-            catch (ApplicationCommandException ex)
-            {
-                var json = JsonConvert.SerializeObject(ex.Errors, Formatting.Indented);
-            }
-        }
 
-        private async Task CreateGuildCommand(string name, string description, string guildName, bool withDMPermission)
-        {
-            //https://discordnet.dev/guides/int_basics/application-commands/slash-commands/creating-slash-commands.html
-            // Create SlashCommandBuilder followed by client.CreateApplicationCommandAsync in a try-catch.
-            // If it fails, it will create a ApplicationCommandException
-
-            var guild = _client.GetGuild((ulong)Convert.ToDouble(_configuration["GuildID"]));
-
-            var guildCommand = new SlashCommandBuilder();
-            guildCommand.WithName(name);
-            guildCommand.WithDescription(description);
-            guildCommand.WithDMPermission(true);
-
-            try
-            {
-                await guild.CreateApplicationCommandAsync(guildCommand.Build());
-            }
-            catch (ApplicationCommandException ex)
-            {
-                var json = JsonConvert.SerializeObject(ex.Errors, Formatting.Indented);
-            }
-        }
-
-        private async Task HandleSlashCommandAsync(SocketSlashCommand command)
-        {
-            try
-            {
-                
-            }
             await command.RespondAsync()
         }
 
-        private async Task HandleCommandAsync(SocketMessage command)
+        private async Task TextCommandHandlerAsync(SocketMessage command)
         {
             // Ignore messages from bots
             if (command is not SocketUserMessage message || message.Author.IsBot)

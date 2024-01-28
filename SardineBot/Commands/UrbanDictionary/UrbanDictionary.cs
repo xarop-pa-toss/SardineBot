@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 
 using Discord.Commands;
+using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using RestSharp;
 
@@ -23,18 +24,20 @@ namespace SardineBot.Commands.UrbanDictionary
 
         [Command("ud")]
         [Summary("Busca definição do termo dado no Urban Dictionary")]
-        public async Task ExecuteAsync([Remainder][Summary("Termo a procurar no Urban Dictionary")] string phrase)
+        public async Task ExecuteAsync(SocketSlashCommand command)
         {
-            if (string.IsNullOrEmpty(phrase))
+            string termToSearch = command.Data.Options.First().Value.ToString();
+
+            if (string.IsNullOrEmpty(termToSearch))
             {
-                await ReplyAsync($"Utilização: !sardine ud <termo a procurar>");
+                await ReplyAsync($"Utilização: /ud sardine ud <termo a procurar>");
                 return;
             }
 
-            await GetResponseFromUD(phrase);
+            await GetResponseFromUD(termToSearch);
         }
 
-        private async Task GetResponseFromUD(string phrase)
+        private async Task GetResponseFromUD(string termToSearch)
         {
             string UDToken = _configuration["RapidAPI_UrbanDictionaryToken"] ?? throw new Exception("Urban Dictionary token is missing. Check secrets.");
 
@@ -45,7 +48,7 @@ namespace SardineBot.Commands.UrbanDictionary
 
             request.AddHeader("X-RapidAPI-Key", UDToken);
             request.AddHeader("X-RapidAPI-Host", "mashape-community-urban-dictionary.p.rapidapi.com");
-            request.AddParameter("term", phrase);
+            request.AddParameter("term", termToSearch);
 
             var response = await client.GetAsync<UrbanDictionaryResponse>(request);
 
@@ -56,7 +59,7 @@ namespace SardineBot.Commands.UrbanDictionary
             }
             else
             {
-                await ReplyAsync($"_{phrase}?_");
+                await ReplyAsync($"_{termToSearch}?_");
                 await ReplyAsync(response.List[0].Definition.ToString());
             }
         }

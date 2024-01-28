@@ -1,4 +1,6 @@
 ﻿using Discord.Commands;
+using Discord.Interactions;
+using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,14 +11,13 @@ namespace SardineBot.Commands.Echo
 {
     public class Echo : ModuleBase<SocketCommandContext>
     {
-        [Command("echo")]
-        [Summary("Tu escreves, eu repito")]
-
-        public async Task ExecuteAsync([Remainder][Summary("Algum texto")] string phrase)
+        public async Task ExecuteAsync(SocketSlashCommand command)
         {
+            string phrase = command.Data.Options.First().Value.ToString();
+
             if (string.IsNullOrEmpty(phrase))
             {
-                await ReplyAsync($"Utilização: !sardine echo <texto>");
+                await ReplyAsync($"Utilização: /echo <texto>");
                 return;
             }
 

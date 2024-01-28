@@ -16,6 +16,7 @@ using Google.Apis.Auth.OAuth2;
 using Microsoft.Extensions.Logging;
 using Google.Apis.Sheets.v4.Data;
 using System.Reflection;
+using Discord.WebSocket;
 
 namespace SardineBot.Commands.GoogleSheets
 {
@@ -32,18 +33,12 @@ namespace SardineBot.Commands.GoogleSheets
         [Command("quotas")]
         [Summary("Busca estado das quotas do user ao ficheiro Google Sheets na Drive do clube")]
 
-        public async Task ExecuteAsync([Summary("Buscar estado das quotas no ficheiro Google Sheets \"Lista Sócios\"")] string phrase)
+        public async Task<string> ExecuteAsync(SocketSlashCommand command)
         {
-            if (string.IsNullOrEmpty(phrase))
-            {
-                await ReplyAsync($"Utilização: !sardine quotas");
-                return;
-            }
-
             SheetsController sheetsControler = new SheetsController(_configuration);
             ValueRange valueRange = await sheetsControler.ReadRangeFromSheet("GoogleSheets_ListaSociosFileID", "A3");
 
-            await ReplyAsync(valueRange.Values[0][0].ToString());
+            return valueRange.Values[0][0].ToString();
         }
     }
 
