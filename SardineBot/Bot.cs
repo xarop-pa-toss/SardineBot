@@ -20,13 +20,11 @@ namespace SardineBot
     {
         // LOGGING handled by LogService.LogAsync
         private ServiceProvider? _serviceProvider;
-        
+        private LogService _LogService;
+
         private readonly IConfiguration _configuration;
         private readonly DiscordSocketClient _client;
         private readonly CommandService _commands;
-
-        private SlashCommandHandler _CommandHandler;
-        private LogService _LogService;
       
         public Bot(IConfiguration configuration)
         {
@@ -40,7 +38,6 @@ namespace SardineBot
             _client = new DiscordSocketClient(config);
             _commands = new CommandService();
             _LogService = new LogService(_client, _commands);
-            _CommandHandler = new SlashCommandHandler(_client, _commands, _configuration);
         }
 
 
@@ -69,6 +66,7 @@ namespace SardineBot
             }
         }
 
+
         private async Task SlashCommandHandlerAsync(SocketSlashCommand command)
         {
             // Switch statement for each of the commands created.
@@ -84,11 +82,11 @@ namespace SardineBot
                     break;
                 case "echo":
                     Echo echo = new Echo();
-                    echo.ExecuteAsync(command);
+                    await echo.ExecuteAsync(command);
                     break;
             }
 
-            await command.RespondAsync()
+            await command.RespondAsync();
         }
 
         private async Task TextCommandHandlerAsync(SocketMessage command)

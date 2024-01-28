@@ -17,17 +17,20 @@ using Microsoft.Extensions.Logging;
 using Google.Apis.Sheets.v4.Data;
 using System.Reflection;
 using Discord.WebSocket;
+using static System.Net.WebRequestMethods;
 
 namespace SardineBot.Commands.GoogleSheets
 {
     public class GoogleSheets : ModuleBase<SocketCommandContext>
     {
-        
         private readonly IConfiguration _configuration;
+        private SheetsController _SheetsController;
+        private SocketSlashCommand _command;
 
         public GoogleSheets(IConfiguration configuration)
         {
             _configuration = configuration;
+            _SheetsController = new SheetsController(_configuration);
         }
 
         [Command("quotas")]
@@ -35,8 +38,9 @@ namespace SardineBot.Commands.GoogleSheets
 
         public async Task<string> ExecuteAsync(SocketSlashCommand command)
         {
-            SheetsController sheetsControler = new SheetsController(_configuration);
-            ValueRange valueRange = await sheetsControler.ReadRangeFromSheet("GoogleSheets_ListaSociosFileID", "A3");
+            _command = command;
+
+            string realName = _SheetsController.GetRealName();
 
             return valueRange.Values[0][0].ToString();
         }
@@ -47,6 +51,7 @@ namespace SardineBot.Commands.GoogleSheets
         private readonly IConfiguration _configuration;
         private static SheetsService _sheetsService;
         private static string _jsonPath { get; set; }
+
 
         public SheetsController(IConfiguration configuration)
         {
@@ -62,21 +67,42 @@ namespace SardineBot.Commands.GoogleSheets
                 _jsonPath = Path.Combine(assemblyDirectory, projectPathToJSON);
             }
 
-            if (_sheetsService == null) { InitializeSheetsService(); }
+            if (_sheetsService == null) 
+            {
+                try
+                {
+                    // Create credentials from the JSON file taken from Google Service Account
+                    GoogleCredential credential;
 
+                    credential = GoogleCredential
+                        .FromJson(File.ReadAllText(_jsonPath))
+                        .CreateScoped(SheetsService.Scope.Spreadsheets);
+
+                    // Create static Sheets API service
+                    _sheetsService = new SheetsService(new BaseClientService.Initializer()
+                    {
+                        ApplicationName = "SardineBot",
+                        HttpClientInitializer = credential,
+                    });
+                }
+                catch (Exception e)
+                {
+                    throw new Exception(e.ToString());
+                }
+            }
         }
-
         
-        internal async Task<Google.Apis.Sheets.v4.Data.ValueRange>ReadRangeFromSheet(string fileID, string range)
+        internal async Task<ValueRange> GetRangeFromSheet(string range, string sheetID, string majorDimension)
         {
             // https://developers.google.com/sheets/api/samples/reading for info
+            // https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values for info on Major Dimension
             // Ranges are to be in the A1 notation. An example range is A1:D5.
 
-            if (_configuration[fileID] == null) { Console.WriteLine("FileID token is missing. Check secrets."); throw new Exception(); }
+            if (_configuration["GoogleSheets_ListaSociosFileID"] == null) { Console.WriteLine("FileID token is missing. Check secrets."); throw new Exception(); }
 
             try
             {
-                var response = await _sheetsService.Spreadsheets.Values.Get(_configuration[fileID], range).ExecuteAsync();
+                var response = await _sheetsService.Spreadsheets.Values.Get(_configuration[sheetID], range).ExecuteAsync();
 
                 // Return only if not null
                 if (response.Values != null && response.Values.Count > 0)
@@ -93,28 +119,36 @@ namespace SardineBot.Commands.GoogleSheets
             }
         }
 
-        private void InitializeSheetsService()
+        internal async Task<string> GetRealName(string range)
         {
+            if (_configuration["GoogleSheets_ListaSociosFileID"] == null) { Console.WriteLine("FileID token is missing. Check secrets."); throw new Exception(); }
+
             try
             {
-                // Create credentials from the JSON file taken from Google Service Account
-                GoogleCredential credential;
+                ValueRange colHeaders = await GetRangeFromSheet(_configuration["GoogleSheets_SheetDetalhesID"], "A1:A", "ROWS");
 
-                credential = GoogleCredential
-                    .FromJson(File.ReadAllText(_jsonPath))
-                    .CreateScoped(SheetsService.Scope.Spreadsheets);
+                // ValueRange is an array of arrays. Flattening it with SelectMany turns it into a single array
+                IEnumerable<object> flatList = colHeaders.Values
+                    .SelectMany(row => row)
+                    .Select(header => (header as string)?.ToLower());
 
-                // Create static Sheets API service
-                _sheetsService = new SheetsService(new BaseClientService.Initializer()
+                // IndexOf returns -1 if it can't find the value
+                int discordColIndex = flatList.ToList().IndexOf("discord");
+
+                if (discordColIndex == -1) { throw new Exception("GoogleSheets.GetRealName - Could not find specified column header"); }
+
+
+            }
+            catch (Exception ex) 
+            { 
+                Console.WriteLine("GoogleSheets.GetRealName - Couldn't read from the given range.");
+                if (ex.Message != null)
                 {
-                    ApplicationName = "SardineBot",
-                    HttpClientInitializer = credential,                    
-                });
+                    Console.WriteLine(ex.Message);
+                }
             }
-            catch (Exception e)
-            {
-                throw new Exception(e.ToString());
-            }
+
         }
+
     }
 }
