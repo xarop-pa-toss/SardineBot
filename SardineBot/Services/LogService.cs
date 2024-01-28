@@ -22,12 +22,12 @@ namespace SardineBot
             if (logMessage.Exception is CommandException cmdException)
             {
                 Console.WriteLine(
-                    $"Command/{logMessage.Severity} - {cmdException.Command.Aliases.First()}" +
-                    $" falhou ao executar em {cmdException.Context.Channel}");
+                    $"EXCEPTION:Command/{logMessage.Severity} - {cmdException.Command.Aliases.First()}" +
+                    $" falhou ao executar no canal {cmdException.Context.Channel}");
             }
             else
             {
-                Console.WriteLine($"General/{logMessage.Severity} - {logMessage}");
+                Console.WriteLine($"EXCEPTION:General/{logMessage.Severity} - {logMessage}");
             }
 
             return Task.CompletedTask;

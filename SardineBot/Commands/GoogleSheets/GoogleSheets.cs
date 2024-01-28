@@ -55,13 +55,28 @@ namespace SardineBot.Commands.GoogleSheets
 
         public SheetsController(IConfiguration configuration)
         {
-            if (_jsonPath == null) { SetGoogleSheetsKeyJsonPath(); }
-            if (_sheetsService == null) { InitializeSheetsService(); }
             _configuration = configuration;
+
+            if (_jsonPath == null)
+            {
+                // Get location of currently executing assembly and combine with JSON path
+                string assemblyLocation = Assembly.GetExecutingAssembly().Location;
+                string assemblyDirectory = Path.GetDirectoryName(assemblyLocation);
+
+                string projectPathToJSON = Path.Combine("Commands", "GoogleSheets", "GoogleSheetsKey.json");
+                _jsonPath = Path.Combine(assemblyDirectory, projectPathToJSON);
+            }
+
+            if (_sheetsService == null) { InitializeSheetsService(); }
+
         }
 
+        
         internal async Task<Google.Apis.Sheets.v4.Data.ValueRange>ReadRangeFromSheet(string fileID, string range)
         {
+            // https://developers.google.com/sheets/api/samples/reading for info
+            // Ranges are to be in the A1 notation. An example range is A1:D5.
+
             if (_configuration[fileID] == null) { Console.WriteLine("FileID token is missing. Check secrets."); throw new Exception(); }
 
             try
@@ -73,6 +88,7 @@ namespace SardineBot.Commands.GoogleSheets
                 {
                     return response;
                 }
+                response.MajorDimension = "ROWS";
 
                 return response;
             }
@@ -81,8 +97,6 @@ namespace SardineBot.Commands.GoogleSheets
                 throw new Exception($"Erro ao ler do Google Sheets.\n Erro: {ex.Message}");
             }
         }
-
-
 
         private void InitializeSheetsService()
         {
@@ -106,20 +120,6 @@ namespace SardineBot.Commands.GoogleSheets
             {
                 throw new Exception(e.ToString());
             }
-        }
-
-        private void SetGoogleSheetsKeyJsonPath()
-        {
-            // *** GPT CODE - did not change ***
-            // Get the location of the currently executing assembly (your executable)
-            string assemblyLocation = Assembly.GetExecutingAssembly().Location;
-
-            // Get the directory of the assembly
-            string assemblyDirectory = Path.GetDirectoryName(assemblyLocation);
-
-            // Combine the assembly directory with the relative path to your JSON file
-            string relativePath = Path.Combine("Commands", "GoogleSheets", "GoogleSheetsKey.json");
-            _jsonPath = Path.Combine(assemblyDirectory, relativePath);          
         }
     }
 }
