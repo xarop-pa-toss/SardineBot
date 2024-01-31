@@ -11,6 +11,7 @@ namespace SardineBot.Commands.Echo
 {
     public class Echo : ModuleBase<SocketCommandContext>
     {
+        [SlashCommand("echo","Repeats back text")]
         public async Task ExecuteAsync(SocketSlashCommand command)
         {
             string phrase = command.Data.Options.First().Value.ToString();

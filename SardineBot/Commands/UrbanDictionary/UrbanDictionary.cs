@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 
 using Discord.Commands;
+using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using RestSharp;
@@ -22,8 +23,7 @@ namespace SardineBot.Commands.UrbanDictionary
             _configuration = configuration;
         }
 
-        [Command("ud")]
-        [Summary("Busca definição do termo dado no Urban Dictionary")]
+        [SlashCommand("ud", "Busca definição do termo dado no Urban Dictionary")]
         public async Task ExecuteAsync(SocketSlashCommand command)
         {
             string termToSearch = command.Data.Options.First().Value.ToString();
