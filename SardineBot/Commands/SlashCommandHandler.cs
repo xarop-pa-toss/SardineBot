@@ -18,6 +18,4 @@ public class SlashCommandHandler : InteractionModuleBase<SocketInteractionContex
     {
         _handler = handler;
     }
-
-
 }
