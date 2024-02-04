@@ -14,7 +14,7 @@ using RestSharp;
 
 namespace SardineBot.Commands.UrbanDictionary
 {
-    public class UrbanDictionary : ModuleBase<SocketCommandContext>
+    public class UrbanDictionary : InteractionModuleBase<SocketInteractionContext>
     {
         private readonly IConfiguration _configuration;
 

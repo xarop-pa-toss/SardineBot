@@ -11,7 +11,7 @@ using static System.Net.WebRequestMethods;
 
 namespace SardineBot.Commands.GoogleSheets
 {
-    public class GoogleSheets : ModuleBase<SocketCommandContext>
+    public class GoogleSheets : InteractionModuleBase<SocketInteractionContext>
     {
         private readonly IConfiguration _configuration;
         private SheetsController _SheetsController;
@@ -51,10 +51,8 @@ namespace SardineBot.Commands.GoogleSheets
                 }
                 return "";
             }
-
         }
     }
-
 
     internal class SheetsController
     {
@@ -128,7 +126,6 @@ namespace SardineBot.Commands.GoogleSheets
                 throw new Exception($"Erro ao ler do Google Sheets.\n Erro: {ex.Message}");
             }
         }
-
     }
 
     public enum MajorDimensionType

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SardineBot.Commands.Echo
 {
-    public class Echo : ModuleBase<SocketCommandContext>
+    public class Echo : InteractionModuleBase<SocketInteractionContext>
     {
         [SlashCommand("echo","Repeats back text")]
         public async Task ExecuteAsync(SocketSlashCommand command)

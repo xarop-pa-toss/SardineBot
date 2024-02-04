@@ -17,7 +17,7 @@ namespace SardineBot
             command.Log += LogAsync;
         }
 
-        private Task LogAsync(LogMessage logMessage)
+        internal static Task LogAsync(LogMessage logMessage)
         {
             if (logMessage.Exception is CommandException cmdException)
             {
