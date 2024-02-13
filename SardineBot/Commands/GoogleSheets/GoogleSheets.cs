@@ -1,4 +1,4 @@
-﻿using Discord.Commands;
+﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Google.Apis.Auth.OAuth2;
@@ -6,6 +6,7 @@ using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
 using Microsoft.Extensions.Configuration;
+using System.CodeDom;
 using System.Reflection;
 using static System.Net.WebRequestMethods;
 
@@ -15,9 +16,7 @@ namespace SardineBot.Commands.GoogleSheets
     {
         private readonly IConfiguration _configuration;
         private SheetsController _SheetsController;
-        //private SocketSlashCommand _command;
 
-        
         public GoogleSheets(IConfiguration configuration)
         {
             _configuration = configuration;
@@ -25,23 +24,27 @@ namespace SardineBot.Commands.GoogleSheets
         }
 
         [SlashCommand("quotas", "Busca estado das quotas do user ao ficheiro Google Sheets na Drive do clube")]
-        public async Task<string> ExecuteAsync()
+        public async Task<string> GoogleSheetsAsync()
         {
-            var _command = Context.Interaction;
+            IDiscordInteraction command = Context.Interaction;
+            IUser user = command.User;
             
-
-            #region Get Real Name
+            // Sheet Detalhes has Full name on Column A, Discord names/row number on Columns H and I
+            // Data starts on Row 2
             if (_configuration["GoogleSheets_ListaSociosFileID"] == null) { Console.WriteLine("FileID token is missing. Check secrets."); throw new Exception(); }
 
             try
             {
-                ValueRange discordNames = await _SheetsController.GetRangeFromSheet("Detalhes!H2:H", _configuration["GoogleSheets_ListaSociosFileID"], MajorDimensionType.COLS);
+                ValueRange discordNames = await _SheetsController.GetRangeFromSheet("Detalhes!H2:I", MajorDimensionType.ROWS, _configuration["GoogleSheets_ListaSociosFileID"]);
+                int userRow = Convert.ToInt32(discordNames.Values.FirstOrDefault(row => (string)row[0] == user.Username)?.ElementAt(1) as string);
 
-                //string realName = discordNames.Values.Select(n => n.);
+                if (userRow != null)
+                {
+                    ValueRange realNameValueRange = await _SheetsController.GetRangeFromSheet($"Detalhes!A{userRow}", MajorDimensionType.ROWS, _configuration["GoogleSheets_ListaSociosFileID"]);
+                    return realNameValueRange.Values[0][0].ToString();
+                }
+
                 return "";
-                //if (discordColIndex == -1) { throw new Exception("GoogleSheets.GetRealName - Could not find specified column header"); }
-
-
             }
             catch (Exception ex)
             {
@@ -101,7 +104,7 @@ namespace SardineBot.Commands.GoogleSheets
             }
         }
 
-        internal async Task<ValueRange> GetRangeFromSheet(string range, string fileID, MajorDimensionType majorDimension)
+        internal async Task<ValueRange> GetRangeFromSheet(string range, MajorDimensionType majorDimension, string fileID)
         {
             // https://developers.google.com/sheets/api/samples/reading for info
             // https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values for info on Major Dimension
@@ -134,5 +137,4 @@ namespace SardineBot.Commands.GoogleSheets
         ROWS,
         COLS
     }
-    #endregion
 }
