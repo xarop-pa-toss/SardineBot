@@ -15,7 +15,7 @@ namespace SardineBot.Commands.GoogleSheets
     {
         private readonly IConfiguration _configuration;
         private SheetsController _SheetsController;
-        private SocketSlashCommand _command;
+        //private SocketSlashCommand _command;
 
         
         public GoogleSheets(IConfiguration configuration)
@@ -25,9 +25,10 @@ namespace SardineBot.Commands.GoogleSheets
         }
 
         [SlashCommand("quotas", "Busca estado das quotas do user ao ficheiro Google Sheets na Drive do clube")]
-        public async Task<string> ExecuteAsync(SocketSlashCommand command)
+        public async Task<string> ExecuteAsync()
         {
-            _command = command;
+            var _command = Context.Interaction;
+            
 
             #region Get Real Name
             if (_configuration["GoogleSheets_ListaSociosFileID"] == null) { Console.WriteLine("FileID token is missing. Check secrets."); throw new Exception(); }

@@ -1,5 +1,4 @@
-﻿using Discord.Commands;
-using Discord.Interactions;
+﻿using Discord.Interactions;
 using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
@@ -12,17 +11,15 @@ namespace SardineBot.Commands.Echo
     public class Echo : InteractionModuleBase
     {
         [SlashCommand("echo","Repeats back text")]
-        public async Task ExecuteAsync(SocketSlashCommand command)
+        public async Task EchoAsync([Summary("frase", "Uma frase para eu dizer de volta")] string frase)
         {
-            string phrase = command.Data.Options.First().Value.ToString();
-
-            if (string.IsNullOrEmpty(phrase))
+            if (string.IsNullOrEmpty(frase))
             {
-                await ReplyAsync($"Utilização: /echo <texto>");
+                await ReplyAsync($"Utilização: echo <texto>");
                 return;
             }
 
-            await ReplyAsync(phrase);
+            await ReplyAsync(frase);
         }
     }
 }

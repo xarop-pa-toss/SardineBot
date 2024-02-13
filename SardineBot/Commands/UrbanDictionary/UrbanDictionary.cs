@@ -24,9 +24,11 @@ namespace SardineBot.Commands.UrbanDictionary
         }
 
         [SlashCommand("ud", "Busca definição do termo dado no Urban Dictionary")]
-        public async Task ExecuteAsync(SocketSlashCommand command)
+        public async Task ExecuteAsync()
         {
-            string termToSearch = command.Data.Options.First().Value.ToString();
+            var command = Context.Interaction.Data;
+
+            string termToSearch = "";//command.Data.Options.First().Value.ToString();
 
             if (string.IsNullOrEmpty(termToSearch))
             {

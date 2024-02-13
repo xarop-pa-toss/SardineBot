@@ -39,7 +39,6 @@ internal class Program
             .AddSingleton(_socketConfig)
             .AddSingleton<DiscordSocketClient>()
             .AddSingleton(x => new InteractionService(x.GetRequiredService<DiscordSocketClient>()))
-            .AddSingleton<InteractionHandler>()
             .AddScoped<IBot, Bot>()
             .BuildServiceProvider();
 
