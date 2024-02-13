@@ -9,7 +9,7 @@ using Discord.Interactions;
 
 namespace SardineBot.Commands;
 
-public class SlashCommandHandler : InteractionModuleBase<SocketInteractionContext>
+public class SlashCommandHandler : InteractionModuleBase
 {
     public InteractionService Commands { get; set; }
     private InteractionHandler _handler;

@@ -27,7 +27,6 @@ public class InteractionHandler
     public async Task InitializeAsync()
     {
         // Trigger events to register commands only after Client has given the ready signal
-
         _client.Ready += ReadyAsync;
         _handler.Log += LogService.LogAsync;
 

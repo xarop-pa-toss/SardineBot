@@ -11,7 +11,7 @@ using static System.Net.WebRequestMethods;
 
 namespace SardineBot.Commands.GoogleSheets
 {
-    public class GoogleSheets : InteractionModuleBase<SocketInteractionContext>
+    public class GoogleSheets : InteractionModuleBase
     {
         private readonly IConfiguration _configuration;
         private SheetsController _SheetsController;
