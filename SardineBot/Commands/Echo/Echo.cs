@@ -10,7 +10,7 @@ namespace SardineBot.Commands.Echo
 {
     public class Echo : InteractionModuleBase
     {
-        [SlashCommand("echo","Repeats back text")]
+        [SlashCommand("echo","Repete o texto dado")]
         public async Task EchoAsync([Summary("frase", "Uma frase para eu dizer de volta")] string frase)
         {
             if (string.IsNullOrEmpty(frase))

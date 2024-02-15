@@ -23,8 +23,6 @@ namespace SardineBot;
 public class Bot : IBot
 {
     // LOGGING handled by LogService.LogAsync
-    private LogService _LogService;
-
     private readonly DiscordSocketClient _client;
     private readonly IConfiguration _configuration;
     private readonly InteractionService _handler;
@@ -39,14 +37,13 @@ public class Bot : IBot
         _services = serviceProvider;
 
         _commands = new CommandService();
-        _LogService = new LogService(_client, _commands);
+        new LogService(_client, _commands);
 
         DiscordSocketConfig config = new()
         {
             GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent
         };
     }
-
 
     public async Task StartAsync(IServiceProvider _services)
     {
@@ -61,14 +58,14 @@ public class Bot : IBot
 
         // Process the InteractionCreated payloads to execute Interactions commands
         _client.InteractionCreated += HandleInteraction;
-        // Also process the result of the command execution.
+        // Process the result of the command execution.
         _handler.InteractionExecuted += HandleInteractionExecute;
+
+        _handler.Log += InteractionServiceLog;
 
         await _client.LoginAsync(TokenType.Bot, botToken);
         await _client.StartAsync();
         await Task.Delay(-1);
-
-        //_client.SlashCommandExecuted += SlashCommandHandlerAsync;
     }
 
     public async Task StopAsync()
@@ -84,11 +81,9 @@ public class Bot : IBot
     {
         ulong guildID = (ulong)Convert.ToDouble(_configuration["GuildID"]);
 
-        // Register commands either on guild only or globally. Globally can take upwards of an hour to give results
+        // Register commands either on guild only or globally
         var guild = _client.GetGuild(guildID);
-        await _handler.RegisterCommandsToGuildAsync(guildID);
-
-        //SlashCommandCreator CreateCommands = new SlashCommandCreator(_client, _commands, _configuration);
+        await _handler.RegisterCommandsGloballyAsync();
     }
 
 
@@ -136,50 +131,8 @@ public class Bot : IBot
             }
     }
 
-
-
-
-    //private async Task InteractionHandlerAsync(SocketSlashCommand command)
-    //{
-    //    // Switch statement for each of the commands created.
-    //    switch(command.Data.Name)
-    //    {
-    //        case "urban":
-    //            UrbanDictionary urbanCommand = new UrbanDictionary(_configuration);
-    //            await urbanCommand.ExecuteAsync(command);
-    //            break;
-    //        case "quotas":
-    //            GoogleSheets googleSheets = new GoogleSheets(_configuration);
-    //            await googleSheets.ExecuteAsync(command);
-    //            break;
-    //        case "echo":
-    //            Echo echo = new Echo();
-    //            await echo.ExecuteAsync(command);
-    //            break;
-    //    }
-
-    //    await command.RespondAsync();
-    //}
-
-    //private async Task TextCommandHandlerAsync(SocketMessage command)
-    //{
-    //    // Ignore messages from bots
-    //    if (command is not SocketUserMessage message || message.Author.IsBot)
-    //    {
-    //        return;
-    //    }
-        
-    //    // Check if the message starts with !
-    //    int position = 0;
-    //    bool messageIsCommand = message.HasStringPrefix("!sardine ", ref position);
-
-    //    if (messageIsCommand)
-    //    {
-    //        // Execute the command if it exists in the ServiceCollection
-    //        await _commands.ExecuteAsync(
-    //            new SocketCommandContext(_client, message), position, _services);
-
-    //        return;
-    //    }
-    //}
+    private async Task InteractionServiceLog(LogMessage logMessage)
+    {
+        LogService.LogAsync(logMessage);
+    }
 }

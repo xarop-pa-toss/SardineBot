@@ -4,8 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-
-using Discord.Commands;
+using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
@@ -23,23 +22,21 @@ namespace SardineBot.Commands.UrbanDictionary
             _configuration = configuration;
         }
 
-        [SlashCommand("ud", "Busca definição do termo dado no Urban Dictionary")]
-        public async Task ExecuteAsync()
+        [SlashCommand("ud", "Busca definição de um termo no Urban Dictionary")]
+        public async Task UrbanDictionaryAsync([Summary("termo", "Um termo pra eu procurar no Urban Dictionary")] string termo)
         {
-            var command = Context.Interaction.Data;
+            IDiscordInteraction command = Context.Interaction;
 
-            string termToSearch = "";//command.Data.Options.First().Value.ToString();
-
-            if (string.IsNullOrEmpty(termToSearch))
+            if (string.IsNullOrEmpty(termo))
             {
-                await ReplyAsync($"Utilização: /ud sardine ud <termo a procurar>");
+                await ReplyAsync($"Utilização: /ud <termo a procurar>");
                 return;
             }
 
-            await GetResponseFromUD(termToSearch);
+            await GetResponseFromUD(termo);
         }
 
-        private async Task GetResponseFromUD(string termToSearch)
+        private async Task GetResponseFromUD(string termo)
         {
             string UDToken = _configuration["RapidAPI_UrbanDictionaryToken"] ?? throw new Exception("Urban Dictionary token is missing. Check secrets.");
 
@@ -48,12 +45,11 @@ namespace SardineBot.Commands.UrbanDictionary
 
             var request = new RestRequest();
 
-            request.AddHeader("X-RapidAPI-Key", UDToken);
+            request.AddHeader("X-RapidAPI-Key", UDToken) ;
             request.AddHeader("X-RapidAPI-Host", "mashape-community-urban-dictionary.p.rapidapi.com");
-            request.AddParameter("term", termToSearch);
+            request.AddParameter("term", termo);
 
             var response = await client.GetAsync<UrbanDictionaryResponse>(request);
-
 
             if (response.List == null || !response.List.Any())
             {
@@ -61,7 +57,7 @@ namespace SardineBot.Commands.UrbanDictionary
             }
             else
             {
-                await ReplyAsync($"_{termToSearch}?_");
+                await ReplyAsync($"_{termo}?_");
                 await ReplyAsync(response.List[0].Definition.ToString());
             }
         }
