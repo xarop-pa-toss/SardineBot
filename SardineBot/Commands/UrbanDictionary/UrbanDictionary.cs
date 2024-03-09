@@ -29,7 +29,7 @@ namespace SardineBot.Commands.UrbanDictionary
 
             if (string.IsNullOrEmpty(termo))
             {
-                await ReplyAsync($"Utilização: /ud <termo a procurar>");
+                await ReplyAsync("Utilização: /ud <termo a procurar>");
                 return;
             }
 
