@@ -38,14 +38,13 @@ namespace SardineBot.Commands.UrbanDictionary
 
         private async Task GetResponseFromUD(string termo)
         {
-            string UDToken = _configuration["RapidAPI_UrbanDictionaryToken"] ?? throw new Exception("Urban Dictionary token is missing. Check secrets.");
+            string token = _configuration["RapidAPI_UrbanDictionaryToken"] ?? throw new Exception("Urban Dictionary token is missing. Check secrets.");
 
             //var options = new RestClientOptions( + phrase);
             var client = new RestClient("https://mashape-community-urban-dictionary.p.rapidapi.com/define?");
-
             var request = new RestRequest();
 
-            request.AddHeader("X-RapidAPI-Key", UDToken) ;
+            request.AddHeader("X-RapidAPI-Key", token) ;
             request.AddHeader("X-RapidAPI-Host", "mashape-community-urban-dictionary.p.rapidapi.com");
             request.AddParameter("term", termo);
 
