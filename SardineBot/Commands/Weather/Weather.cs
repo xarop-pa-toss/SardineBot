@@ -108,21 +108,23 @@ public class Weather : InteractionModuleBase
     public async Task<dynamic> CreateGraphFromForecastJson(JArray forecastArray, TempoTipos timeframe)
     {
         List<string> timeList = new List<string>();
-        List<string> temperatureList = new List<string>();
-        List<string> realFeelList = new List<string>();
+        List<int> temperatureList = new List<int>();
+        List<int> realFeelList = new List<int>();
+        List<int> precipitationProbList = new List<int>();
+
         foreach (JObject forecastObj in forecastArray)
         {
             string timeStr = timeframe == TempoTipos.Proximos7Dias ? forecastObj["time"].ToString() : forecastObj["date"].ToString();
             timeList.Add(timeStr);
 
-            temperatureList.Add(forecastObj["temperature"].ToString());
-            realFeelList.Add(forecastObj["feelsLikeTemp"].ToString());
-
-
+            temperatureList.Add(Convert.ToInt32(forecastObj["temperature"]));
+            realFeelList.Add(Convert.ToInt32(forecastObj["feelsLikeTemp"]));
+            precipitationProbList.Add(Convert.ToInt32(forecastObj["precipProb"]));
         }
         string timeListStr = string.Join(", ", timeList);
         string temperatureListStr = string.Join(", ", temperatureList);
         string realFeelListStr = string.Join(", ", realFeelList);
+        string precipitationProbStr = string.Join(", ", precipitationProbList);
 
 
         Chart forecastChart = new Chart()
@@ -134,49 +136,51 @@ public class Weather : InteractionModuleBase
                 "data: {" +
                    $"labels: [{timeListStr}]," +
                     "datasets: [" +
-                    "{" +
-                        "type: 'bar'," +
-                        "label: 'Temperatura'," +
-                        "backgroundColor: 'rgba(255, 99, 132, 0.5)'," +
-					    "borderColor: 'rgb(255, 99, 132)'," +
-					    $"data: [{temperatureListStr}]
-						      },
-						      {
-						        "type": "bar",
-						        "label": "Dataset 2",
-						        "backgroundColor": "rgba(54, 162, 235, 0.5)",
-						        "borderColor": "rgb(54, 162, 235)",
-						        "data": [
-						          5,
-						          68,
-						          19,
-						          -57,
-						          -79,
-						          37,
-						          -24
-						        ]
-},
-						      {
-						        "type": "line",
-						        "label": "Dataset 3",
-						        "backgroundColor": "rgba(75, 192, 192, 0.5)",
-						        "borderColor": "rgb(75, 192, 192)",
-						        "fill": false,
-						        "data": [
-						          -35,
-						          33,
-						          -49,
-						          2,
-						          68,
-						          35,
-						          -16
-						        ]
-						      }
-						    ]
-						  },
+                        "{" +
+                            "type: 'bar'," +
+                            "label: 'Temperatura'," +
+                            "backgroundColor: 'rgba(255, 99, 132, 0.5)'," +
+                            "borderColor: 'rgb(255, 99, 132)'," +
+                            $"data: [{temperatureListStr}]" +
+                        "}," +
+                        "{" +
+                            "type: 'bar'," +
+                            "label: 'RealFeel'," +
+                            "backgroundColor: 'rgba(54, 162, 235, 0.5)'," +
+                            "borderColor: 'rgb(54, 162, 235)'," +
+                            $"data: [{realFeelListStr}]" +
+                        "}," +
+                        "{" +
+                            "type: 'line'," +
+                            "label: 'Prob. Chuva'," +
+                            "backgroundColor: 'rgba(192, 75, 192, 0.5)," +
+                            "borderColor: 'rgb(192, 75, 192)'," +
+                            "fill: false," +
+                            $"data: [{precipitationProbStr}]" +
+                        "}" +
+                    "]" +
+                "}," +
+                "options: {" +
+                    "title: {" +
+                        $"text: 'Meteorologia para {timeframe.ToString()}" +
+                    "}," +
+                    "scales: {" +
+                        "xAxes: [{" +
+                            "type: 'time'," +
+                            "display: true," +
+                            "offset: true," +
+                            "time: {" +
+                                "unit: 'day'" +
+                            "}" +
+                        "}]" +
+                    "}" +
+                "}" +
+            "}"
+        };
 
-        }
-    }  
+        return forecastChart;
+    }
+
     public async Task<JObject?> GetJsonObjectFromForecaWeather(string baseURL)
     {
         var client = new RestClient(baseURL);
