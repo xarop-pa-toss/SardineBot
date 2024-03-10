@@ -40,7 +40,6 @@ namespace SardineBot.Commands.Weather
             }
 
             // Time
-
             RestClient client = null;
             switch (tempo)
             {
@@ -70,7 +69,6 @@ namespace SardineBot.Commands.Weather
             request.AddHeader("X-RapidAPI-Key", _token);
             request.AddHeader("X-RapidAPI-Host", "foreca-weather.p.rapidapi.com");
             var response = await client.GetAsync(request);
-
         }
 
         public async Task<string> GetLocationIDFromForecaWeather(string local)
