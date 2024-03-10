@@ -51,3 +51,4 @@ C:\Users\Ricardo\source\repos\xarop-pa-toss\SardineBot\SardineBot\obj\Debug\net7
 C:\Users\Ricardo\source\repos\xarop-pa-toss\SardineBot\SardineBot\obj\Debug\net7.0\SardineBot.pdb
 C:\Users\Ricardo\source\repos\xarop-pa-toss\SardineBot\SardineBot\obj\Debug\net7.0\SardineBot.genruntimeconfig.cache
 C:\Users\Ricardo\source\repos\xarop-pa-toss\SardineBot\SardineBot\obj\Debug\net7.0\ref\SardineBot.dll
+C:\Users\Ricardo\source\repos\xarop-pa-toss\SardineBot\SardineBot\bin\Debug\net7.0\QuickChart.dll

@@ -73,6 +73,10 @@
               "target": "Package",
               "version": "[8.0.0, )"
             },
+            "QuickChart": {
+              "target": "Package",
+              "version": "[2.1.0, )"
+            },
             "RestSharp": {
               "target": "Package",
               "version": "[110.2.0, )"

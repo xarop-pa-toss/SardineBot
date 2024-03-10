@@ -6,7 +6,7 @@ using Microsoft.Extensions.Configuration;
 using RestSharp;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Text.Json.Nodes;
+using QuickChart;
 
 namespace SardineBot.Commands.Weather
 {
@@ -22,13 +22,13 @@ namespace SardineBot.Commands.Weather
         }
 
         [SlashCommand("tempo", "Busca o tempo para um certo local.")]
-        public async Task WeatherAsync(string local, TempoTipos tempo)
+        public async Task WeatherAsync(string local, [Summary("tempo")]TempoTipos timeframe)
         {
             IDiscordInteraction command = Context.Interaction;
-            await GetResponseFromForecaWeather(local, tempo);
+            await GetResponseFromForecaWeather(local, timeframe);
         }
 
-        public async Task GetResponseFromForecaWeather(string local, TempoTipos tempo)
+        public async Task GetResponseFromForecaWeather(string local, TempoTipos timeframe)
         {
             // Get Location ID from API. Used for all types of forecast calls
             string localBaseURL = $"https://foreca-weather.p.rapidapi.com/location/search/{local}?lang=pt";
@@ -45,7 +45,7 @@ namespace SardineBot.Commands.Weather
             // Get Forecast data
             string forecastBaseURL = "";
 
-            switch (tempo)
+            switch (timeframe)
             {
                 case TempoTipos.Agora:
                     //Nowcast
@@ -67,19 +67,36 @@ namespace SardineBot.Commands.Weather
                     break;
             }
 
+            // 'forecastJson' holds all information. A JArray is made to hold the info inside the first "layer". Then another JObject is made for each 0, 1, 2 etc
             JObject? forecastJson = await GetJsonObjectFromForecaWeather(localBaseURL);
 
-            if (forecastJson["forecast"] is JArray forecastArray)
-            {
-                foreach (var item in forecastArray.Select((value, index) => new { Value = value, Index = index }))
-                {
-                    var thisItem = item.Value as JObject;
-
-                    string value = thisItem["element"].ToString();
-                    if (string.IsNullOrEmpty(value)) { }
-                }
+            JArray? forecastArray = (JArray)forecastJson?["forecast"];
+            if (forecastArray == null) 
+            { 
+                LogService.LogAsync(new LogMessage(LogSeverity.Error, "Weather.cs", "forecastArray is empty. API probably replied with no valid data.")); 
             }
-            string? timeOriginal = forecastJson["forecast"]?[0]?["time"]?.ToString();
+
+
+            foreach (JObject forecastObj in forecastArray)
+            {
+                // Daily forecasts use a different "date" instead of "time" for their timeframe values
+                // "time" is in format yyyy-MM-dd'T'hh:mm'Z' but "date" is just yyyy-MM-dd
+                string time = "";                
+                if (timeframe != TempoTipos.Proximos7Dias) {
+                    time = forecastObj["time"].ToString().Substring(0, 10);
+                }
+
+                string date = forecastObj["time"].ToString().Substring(11, 5);
+                string visualForecast = forecastObj["symbolPhrase"].ToString();
+                string temperature = forecastObj["temperature"].ToString();
+                string realFeel = forecastObj["feelsLikeTemp"].ToString();
+                string humidity = forecastObj["relHumidity"].ToString();
+                string precipitationProb = forecastObj["precipProb"].ToString();
+                string windSpeed = forecastObj["windSpeed"].ToString();
+                string windDirection = forecastObj["windDirString"].ToString();
+
+
+            }
         }
 
         public async Task<JObject?> GetJsonObjectFromForecaWeather(string baseURL)
@@ -98,7 +115,6 @@ namespace SardineBot.Commands.Weather
 
             return null;
         }
-
 
         public enum TempoTipos
         {
