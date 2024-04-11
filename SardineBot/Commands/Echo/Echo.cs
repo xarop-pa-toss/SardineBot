@@ -1,4 +1,5 @@
-﻿using Discord.Commands;
+﻿using Discord.Interactions;
+using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,20 +8,18 @@ using System.Threading.Tasks;
 
 namespace SardineBot.Commands.Echo
 {
-    public class Echo : ModuleBase<SocketCommandContext>
+    public class Echo : InteractionModuleBase
     {
-        [Command("echo")]
-        [Summary("Tu escreves, eu repito")]
-
-        public async Task ExecuteAsync([Remainder][Summary("Algum texto")] string phrase)
+        [SlashCommand("echo","Repete o texto dado")]
+        public async Task EchoAsync([Summary("frase", "Uma frase para eu dizer de volta")] string frase)
         {
-            if (string.IsNullOrEmpty(phrase))
+            if (string.IsNullOrEmpty(frase))
             {
-                await ReplyAsync($"Utilização: !sardine echo <texto>");
+                await ReplyAsync($"Utilização: echo <texto>");
                 return;
             }
 
-            await ReplyAsync(phrase);
+            await ReplyAsync(frase);
         }
     }
 }

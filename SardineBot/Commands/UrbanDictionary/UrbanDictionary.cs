@@ -4,50 +4,51 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-
-using Discord.Commands;
+using Discord;
+using Discord.Interactions;
+using Discord.WebSocket;
 using Microsoft.Extensions.Configuration;
 using RestSharp;
 
 
 namespace SardineBot.Commands.UrbanDictionary
 {
-    public class UrbanDictionary : ModuleBase<SocketCommandContext>
+    public class UrbanDictionary : InteractionModuleBase
     {
         private readonly IConfiguration _configuration;
+
         public UrbanDictionary(IConfiguration configuration)
         {
             _configuration = configuration;
         }
 
-        [Command("ud")]
-        [Summary("Busca definição do termo dado no Urban Dictionary")]
-        public async Task ExecuteAsync([Remainder][Summary("Termo a procurar no Urban Dictionary")] string phrase)
+        [SlashCommand("ud", "Busca definição de um termo no Urban Dictionary")]
+        public async Task UrbanDictionaryAsync([Summary("termo", "Um termo pra eu procurar no Urban Dictionary")] string termo)
         {
-            if (string.IsNullOrEmpty(phrase))
+            IDiscordInteraction command = Context.Interaction;
+
+            if (string.IsNullOrEmpty(termo))
             {
-                await ReplyAsync($"Utilização: !sardine ud <termo a procurar>");
+                await ReplyAsync("Utilização: /ud <termo a procurar>");
                 return;
             }
 
-            await GetResponseFromUD(phrase);
+            await GetResponseFromUD(termo);
         }
 
-        private async Task GetResponseFromUD(string phrase)
+        private async Task GetResponseFromUD(string termo)
         {
-            string UDToken = _configuration["RapidAPI_UrbanDictionaryToken"] ?? throw new Exception("Urban Dictionary token is missing. Check secrets.");
+            string token = _configuration["RapidAPI_UrbanDictionaryToken"] ?? throw new Exception("Urban Dictionary token is missing. Check secrets.");
 
             //var options = new RestClientOptions( + phrase);
             var client = new RestClient("https://mashape-community-urban-dictionary.p.rapidapi.com/define?");
-
             var request = new RestRequest();
 
-            request.AddHeader("X-RapidAPI-Key", UDToken);
+            request.AddHeader("X-RapidAPI-Key", token) ;
             request.AddHeader("X-RapidAPI-Host", "mashape-community-urban-dictionary.p.rapidapi.com");
-            request.AddParameter("term", phrase);
+            request.AddParameter("term", termo);
 
             var response = await client.GetAsync<UrbanDictionaryResponse>(request);
-
 
             if (response.List == null || !response.List.Any())
             {
@@ -55,7 +56,7 @@ namespace SardineBot.Commands.UrbanDictionary
             }
             else
             {
-                await ReplyAsync($"_{phrase}?_");
+                await ReplyAsync($"_{termo}?_");
                 await ReplyAsync(response.List[0].Definition.ToString());
             }
         }

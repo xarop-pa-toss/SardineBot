@@ -1,53 +1,59 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Reflection;
+
+using Discord;
+using Discord.Interactions;
+using Discord.WebSocket;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SardineBot;
 
-namespace DiscordBot
+namespace DiscordBot;
+
+internal class Program
 {
-    internal class Program
+    private static IConfiguration? _configuration;
+    private static IServiceProvider _services;
+
+    private static readonly DiscordSocketConfig _socketConfig = new()
     {
-        private static void Main(string[] args) =>
-            MainAsync(args).GetAwaiter().GetResult();
+        GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.GuildMembers,
+        AlwaysDownloadUsers = true
+    };
 
-        private static async Task MainAsync(string[] args)
+
+    private static void Main(string[] args) =>
+        MainAsync(args).GetAwaiter().GetResult();
+
+    private static async Task MainAsync(string[] args)
+    {
+        _configuration = new ConfigurationBuilder()
+            .AddUserSecrets(Assembly.GetExecutingAssembly())
+            .Build();
+
+        _services = new ServiceCollection()
+            .AddSingleton<IConfiguration>(_configuration)
+            .AddSingleton(_socketConfig)
+            .AddSingleton<DiscordSocketClient>()
+            .AddSingleton(x => new InteractionService(x.GetRequiredService<DiscordSocketClient>()))
+            .AddScoped<IBot, Bot>()
+            .BuildServiceProvider();
+
+        try
         {
-            var configuration = new ConfigurationBuilder()
-                .AddUserSecrets(Assembly.GetExecutingAssembly())
-                .Build();
+            IBot bot = _services.GetRequiredService<IBot>();
 
-            var serviceProvider = new ServiceCollection()
-                .AddSingleton<IConfiguration>(configuration)
-                .AddScoped<IBot, Bot>()
-                .BuildServiceProvider();
+            await bot.StartAsync(_services);
 
-            try
-            {
-                IBot bot = serviceProvider.GetRequiredService<IBot>();
-
-                await bot.StartAsync(serviceProvider);
-
-                Console.WriteLine("SardineBot is salted and ready to grill!!");
-
-                do
-                {
-                    var keyInfo = Console.ReadKey();
-
-                    if (keyInfo.Key == ConsoleKey.Q)
-                    {
-                        Console.WriteLine("\nSardineBot was too delicious for this world...");
-
-                        await bot.StopAsync();
-                        return;
-                    }
-                } while (true);
-            }
-            catch (Exception exception)
-            {
-                Console.WriteLine(exception.Message);
-                Environment.Exit(-1);
-            }
+            Console.WriteLine("SardineBot is salted and ready to grill!!");
+        }
+        catch (Exception exception)
+        {
+            Console.WriteLine(exception.Message);
+            Environment.Exit(-1);
         }
     }
 }

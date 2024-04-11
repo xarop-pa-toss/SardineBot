@@ -14,6 +14,12 @@
 	  <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
+    <PackageReference Include="QuickChart" Version="2.1.0" />
     <PackageReference Include="RestSharp" Version="110.2.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Commands\GoogleSheets\GoogleSheetsKey.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

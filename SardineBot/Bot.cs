@@ -6,75 +6,133 @@ using Microsoft.Extensions.DependencyInjection;
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
+using Discord.Interactions;
+using System.Runtime.CompilerServices;
+using Newtonsoft.Json;
+using Discord.Net;
+using SardineBot.Commands;
+using SardineBot.Commands.UrbanDictionary;
+using SardineBot.Commands.GoogleSheets;
+using SardineBot.Commands.Echo;
 
-namespace SardineBot
+
+namespace SardineBot;
+
+// SEE EXAMPLE PROJECT AT https://github.com/discord-net/Discord.Net/tree/dev/samples/InteractionFramework
+
+public class Bot : IBot
 {
-    public class Bot : IBot
+    // LOGGING handled by LogService.LogAsync
+    private readonly DiscordSocketClient _client;
+    private readonly IConfiguration _configuration;
+    private readonly InteractionService _handler;
+    private IServiceProvider? _services;
+    private readonly CommandService _commands;
+
+    public Bot(DiscordSocketClient client, IConfiguration configuration, IServiceProvider serviceProvider, InteractionService interactionService)
     {
-        private ServiceProvider? _serviceProvider;
+        _client = client;
+        _configuration = configuration;
+        _handler = interactionService;
+        _services = serviceProvider;
 
-        private readonly IConfiguration _configuration;
-        private readonly DiscordSocketClient _client;
-        private readonly CommandService _commands;
+        _commands = new CommandService();
+        new LogService(_client, _commands);
 
-        public Bot(IConfiguration configuration)
+        DiscordSocketConfig config = new()
         {
-            _configuration = configuration;
+            GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent
+        };
+    }
 
-            DiscordSocketConfig config = new()
-            {
-                GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.MessageContent
-            };
+    public async Task StartAsync(IServiceProvider _services)
+    {
+        string botToken = _configuration["BotToken"] ?? throw new Exception("Discord Token is missing. Check secrets.");
 
-            _client = new DiscordSocketClient(config);
-            _commands = new CommandService();
+        //_services = services;
+        _client.Ready += ClientReadyAsync;
+        _handler.Log += LogService.LogAsync;
+
+        // Add the public modules that inherit InteractionModuleBase<T> to the InteractionService
+        await _handler.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
+
+        // Process the InteractionCreated payloads to execute Interactions commands
+        _client.InteractionCreated += HandleInteraction;
+        // Process the result of the command execution.
+        _handler.InteractionExecuted += HandleInteractionExecute;
+
+        _handler.Log += InteractionServiceLog;
+
+        await _client.LoginAsync(TokenType.Bot, botToken);
+        await _client.StartAsync();
+        await Task.Delay(-1);
+    }
+
+    public async Task StopAsync()
+    {
+        if (_client != null)
+        {
+            await _client.LogoutAsync();
+            await _client.StopAsync();
         }
+    }
 
-        public async Task StartAsync(ServiceProvider services)
+    public async Task ClientReadyAsync()
+    {
+        ulong guildID = (ulong)Convert.ToDouble(_configuration["GuildID"]);
+
+        // Register commands either on guild only or globally
+        var guild = _client.GetGuild(guildID);
+        await _handler.RegisterCommandsGloballyAsync();
+    }
+
+
+    private async Task HandleInteraction(SocketInteraction interaction)
+    {
+        try
         {
-            string botToken = _configuration["BotToken"] ?? throw new Exception("Discord Token is missing. Check secrets.");
+            // Create an execution context that matches the generic type parameter of your InteractionModuleBase<T> modules.
+            var context = new SocketInteractionContext(_client, interaction);
 
-            _serviceProvider = services;
+            // Execute the incoming command.https://github.com/discord-net/Discord.Net/blob/dev/samples/InteractionFramework/InteractionHandler.cs
+            var result = await _handler.ExecuteCommandAsync(context, _services);
 
-            await _commands.AddModulesAsync(Assembly.GetExecutingAssembly(), _serviceProvider);
-
-            await _client.LoginAsync(TokenType.Bot, botToken);
-            await _client.StartAsync();
-
-            _client.MessageReceived += HandleCommandAsync;
+            // Due to async nature of InteractionFramework, the result here may always be success.
+            // That's why we also need to handle the InteractionExecuted event.
+            if (!result.IsSuccess)
+                switch (result.Error)
+                {
+                    case InteractionCommandError.UnmetPrecondition:
+                        LogService.LogAsync(new LogMessage(LogSeverity.Error, "InteractionHandler-HandleInteraction", "Error executing Slash Command async."));
+                        break;
+                    default:
+                        break;
+                }
         }
-
-        public async Task StopAsync()
+        catch
         {
-            if (_client != null)
+            // If Slash Command execution fails it is most likely that the original interaction acknowledgement will persist. It is a good idea to delete the original
+            // response, or at least let the user know that something went wrong during the command execution.
+            if (interaction.Type is InteractionType.ApplicationCommand)
+                await interaction.GetOriginalResponseAsync().ContinueWith(async (msg) => await msg.Result.DeleteAsync());
+        }
+    }
+
+    private async Task HandleInteractionExecute(ICommandInfo commandInfo, IInteractionContext context, Discord.Interactions.IResult result)
+    {
+        if (!result.IsSuccess)
+            switch (result.Error)
             {
-                await _client.LogoutAsync();
-                await _client.StopAsync();
+                case InteractionCommandError.UnmetPrecondition:
+                    LogService.LogAsync(new LogMessage(LogSeverity.Error, "InteractionHandler-HandleInteractionExecute", "Error executing Slash Command async."));
+                    break;
+                default:
+                    break;
             }
-        }
+    }
 
-        private async Task HandleCommandAsync(SocketMessage arg)
-        {
-            // Ignore messages from bots
-            if (arg is not SocketUserMessage message || message.Author.IsBot)
-            {
-                return;
-            }
-
-            // Check if the message starts with !
-            int position = 0;
-            bool messageIsCommand = message.HasStringPrefix("!sardine ", ref position);
-
-            if (messageIsCommand)
-            {
-                // Execute the command if it exists in the ServiceCollection
-                await _commands.ExecuteAsync(
-                    new SocketCommandContext(_client, message),
-                    position,
-                    _serviceProvider);
-
-                return;
-            }
-        }
+    private async Task InteractionServiceLog(LogMessage logMessage)
+    {
+        LogService.LogAsync(logMessage);
     }
 }
