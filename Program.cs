@@ -1,12 +1,9 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using NetCord;
+using NetCord.Gateway;
 using NetCord.Hosting.Gateway;
 using NetCord.Hosting.Services;
 using NetCord.Hosting.Services.ApplicationCommands;
-using NetCord.Rest;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -18,18 +15,31 @@ builder.Configuration
 
 var token = builder.Configuration["Discord:Token"];
 
+
+#region Services
 builder.Services
     .AddDiscordGateway(options =>
     {
         options.Token = token;
+        options.Intents = GatewayIntents.GuildMessages
+                          | GatewayIntents.DirectMessages
+                          | GatewayIntents.MessageContent
+                          | GatewayIntents.DirectMessageReactions
+                          | GatewayIntents.GuildMessageReactions
+                          | GatewayIntents.GuildEmojisAndStickers
+                          | GatewayIntents.GuildMessagePolls;
     })
+    // .AddGatewayHandler<SardineBot.MessageCreateHandler>()
+    // .AddGatewayHandlers(typeof(Program).Assembly)
     .AddApplicationCommands();
+
+#endregion
 
 var host = builder.Build();
 
 host.AddSlashCommand("ping", "Ping!", () => "Pong!");
-host.AddUserCommand("Username", (User user) => user.Username);
-host.AddMessageCommand("Length", (RestMessage message) => message.Content.Length.ToString());
+// host.AddUserCommand("Username", (User user) => user.Username);
+// host.AddMessageCommand("Length", (RestMessage message) => message.Content.Length.ToString());
 
 // Add commands from modules
 host.AddModules(typeof(Program).Assembly);

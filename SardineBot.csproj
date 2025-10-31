@@ -9,10 +9,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.10" />
       <PackageReference Include="NetCord" Version="1.0.0-alpha.423" />
       <PackageReference Include="NetCord.Hosting.AspNetCore" Version="1.0.0-alpha.423" />
       <PackageReference Include="NetCord.Hosting.Services" Version="1.0.0-alpha.422" />
       <PackageReference Include="NetCord.Services" Version="1.0.0-alpha.423" />
+      <PackageReference Include="SQLite" Version="3.13.0" />
     </ItemGroup>
 
     <ItemGroup>
