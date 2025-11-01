@@ -2,6 +2,7 @@ using Microsoft.Data.Sqlite;
 using System;
 using Microsoft.Extensions.Logging;
 using NetCord;
+using NetCord.Rest;
 using NetCord.Services;
 using NetCord.Services.ApplicationCommands;
 using SardineBot.Database;
@@ -10,7 +11,7 @@ using SardineBot.ErrorHandling;
 namespace SardineBot;
 
 [SlashCommand("quotas", "Comandos para quotas")]
-public class GuildCommandsModule (ILogger<GuildCommandsModule> logger): ApplicationCommandModule<ApplicationCommandContext>
+public class QuotasModule (ILogger<QuotasModule> logger): ApplicationCommandModule<ApplicationCommandContext>
 {
     [SubSlashCommand("estado", "Estado das quotas de um membro.")]
     public async Task<string> VerEstadoQuotas(User membro)
