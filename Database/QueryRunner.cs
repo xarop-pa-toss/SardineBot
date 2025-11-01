@@ -1,7 +1,8 @@
 using System.Data;
 using Microsoft.Data.Sqlite;
 using NetCord;
-namespace SardineBot.DatabaseHandlers;
+using SardineBot.Database.Models;
+namespace SardineBot.Database;
 
 public class QueryRunner
 {

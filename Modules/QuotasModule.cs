@@ -4,7 +4,8 @@ using Microsoft.Extensions.Logging;
 using NetCord;
 using NetCord.Services;
 using NetCord.Services.ApplicationCommands;
-using SardineBot.DatabaseHandlers;
+using SardineBot.Database;
+using SardineBot.ErrorHandling;
 
 namespace SardineBot;
 

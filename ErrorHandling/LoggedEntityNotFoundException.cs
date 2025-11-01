@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using NetCord;
-namespace SardineBot.DatabaseHandlers;
+namespace SardineBot.ErrorHandling;
 
 public class LoggedEntityNotFoundException : EntityNotFoundException
 {

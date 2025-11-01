@@ -1,5 +1,5 @@
 using System.Data;
-namespace SardineBot.DatabaseHandlers;
+namespace SardineBot.Database.Models;
 
 public class QueryResult
 {

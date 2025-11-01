@@ -9,6 +9,8 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Google.Apis.Auth" Version="1.72.0" />
+      <PackageReference Include="Google.Apis.Sheets.v4" Version="1.70.0.3819" />
       <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.10" />
       <PackageReference Include="NetCord" Version="1.0.0-alpha.423" />
       <PackageReference Include="NetCord.Hosting.AspNetCore" Version="1.0.0-alpha.423" />

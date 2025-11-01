@@ -1,5 +1,5 @@
 using Microsoft.Data.Sqlite;
-namespace SardineBot.DatabaseHandlers;
+namespace SardineBot.Database;
 
 public class DatabaseProvider
 {

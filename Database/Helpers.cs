@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Data.Sqlite;
 using NetCord;
 using NetCord.Rest;
-namespace SardineBot.DatabaseHandlers;
+namespace SardineBot.Database;
 
 public static class Helpers
 {
