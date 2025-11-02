@@ -1,14 +1,12 @@
-using Microsoft.Data.Sqlite;
-using System;
 using Microsoft.Extensions.Logging;
 using NetCord;
 using NetCord.Rest;
-using NetCord.Services;
 using NetCord.Services.ApplicationCommands;
+using NetCord.Services.Commands;
 using SardineBot.Database;
 using SardineBot.ErrorHandling;
 
-namespace SardineBot;
+namespace SardineBot.Modules;
 
 [SlashCommand("quotas", "Comandos para quotas")]
 public class QuotasModule (ILogger<QuotasModule> logger): ApplicationCommandModule<ApplicationCommandContext>
