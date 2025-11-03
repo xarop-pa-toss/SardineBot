@@ -2,9 +2,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Data.Sqlite;
 using NetCord;
 using NetCord.Rest;
+using SardineBot.ErrorHandling;
 namespace SardineBot.Database;
 
-public static class Helpers
+public static class DbHelpers
 {
     public static async Task<string> GetMembroPrimeiroUltimoNome(User membro, SqliteConnection connection = null)
     {
@@ -27,5 +28,23 @@ public static class Helpers
         }
 
         return $"{partes.First()} {partes.Last()}";
+    }
+
+    public static async Task<int> GetUltimoNumSocio(SqliteConnection connection = null)
+    {
+        var result = await new QueryRunner().QueryAsync(
+            query: """
+                   SELECT max(num_socio)
+                   FROM membros
+                   """
+            , connection: connection
+        );
+
+        if (!result.Success)
+        {
+            throw new LoggedEntityNotFoundException("Erro ao buscar último número de sócio.");
+        }
+
+        return Convert.ToInt32(result.ResultTable.Rows[0][0].ToString());
     }
 }

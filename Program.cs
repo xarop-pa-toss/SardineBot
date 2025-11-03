@@ -1,9 +1,15 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NetCord;
 using NetCord.Gateway;
 using NetCord.Hosting.Gateway;
 using NetCord.Hosting.Services;
 using NetCord.Hosting.Services.ApplicationCommands;
+using NetCord.Hosting.Services.ComponentInteractions;
+using NetCord.Services.ComponentInteractions;
+using SardineBot.Modules;
 
 var builder = Host.CreateApplicationBuilder(args);
 
@@ -18,6 +24,7 @@ var token = builder.Configuration["Discord:Token"];
 
 #region Services
 builder.Services
+    .AddMemoryCache()
     .AddDiscordGateway(options =>
     {
         options.Token = token;
@@ -31,6 +38,8 @@ builder.Services
     })
     // .AddGatewayHandler<SardineBot.MessageCreateHandler>()
     // .AddGatewayHandlers(typeof(Program).Assembly)
+    .AddComponentInteractions<ModalInteraction, ModalInteractionContext>()
+    .AddComponentInteractions<ButtonInteraction, ButtonInteractionContext>()
     .AddApplicationCommands();
 
 #endregion

@@ -14,7 +14,7 @@ public class QueryRunner
     /// <param name="query"></param>
     /// <param name="args"></param>
     /// <returns></returns>
-    public async Task<QueryResult> QueryAsync(string query, (string queryVar, string value)[] args, SqliteConnection? connection = null)
+    public async Task<QueryResult> QueryAsync(string query, (string queryVar, string value)[]? args = null, SqliteConnection? connection = null)
     {
         if (connection is null)
         {
@@ -33,14 +33,18 @@ public class QueryRunner
         }
     }
 
-    private async Task<QueryResult> RunQueryAsync(SqliteConnection conn, string query, (string queryVar, string value)[] args)
+    private async Task<QueryResult> RunQueryAsync(SqliteConnection conn, string query, (string queryVar, string value)[]? args)
     {
         // Command builder
         await using var command = conn.CreateCommand();
         command.CommandText = query;
-        foreach (var arg in args)
+
+        if (args is not null)
         {
-            command.Parameters.AddWithValue(arg.queryVar, arg.value);
+            foreach (var arg in args)
+            {
+                command.Parameters.AddWithValue(arg.queryVar, arg.value);
+            }
         }
         
         // Since only SELECT queries return rows, a case must be opened for ExecuteQuery and ExecuteNonQuery
