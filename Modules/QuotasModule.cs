@@ -66,7 +66,7 @@ public class QuotasModule (ILogger<QuotasModule> logger): ApplicationCommandModu
 
         string estadoActualizado = await VerEstadoQuotas(membro);
         
-        return $"Foram adicionados {quantidade * 30} dias a {Helpers.GetMembroPrimeiroUltimoNome(membro, conn).Result}" +
+        return $"Foram adicionados {quantidade * 30} dias a {DbHelpers.GetMembroPrimeiroUltimoNome(membro, conn).Result}" +
                $"\n{estadoActualizado}";
     }
     
@@ -98,7 +98,7 @@ public class QuotasModule (ILogger<QuotasModule> logger): ApplicationCommandModu
         
         string estadoActualizado = await VerEstadoQuotas(membro);
         
-        return $"Foram adicionados {quantidade * 30} dias a {Helpers.GetMembroPrimeiroUltimoNome(membro, conn).Result}" +
+        return $"Foram adicionados {quantidade * 30} dias a {DbHelpers.GetMembroPrimeiroUltimoNome(membro, conn).Result}" +
                $"\n{estadoActualizado}";
     }
 }

@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NetCord;
 using NetCord.Gateway;
@@ -22,6 +24,7 @@ var token = builder.Configuration["Discord:Token"];
 
 #region Services
 builder.Services
+    .AddMemoryCache()
     .AddDiscordGateway(options =>
     {
         options.Token = token;
