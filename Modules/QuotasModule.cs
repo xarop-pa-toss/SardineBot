@@ -9,8 +9,10 @@ using SardineBot.ErrorHandling;
 namespace SardineBot.Modules;
 
 [SlashCommand("quotas", "Comandos para quotas")]
-public class QuotasModule (ILogger<QuotasModule> logger): ApplicationCommandModule<ApplicationCommandContext>
+public class QuotasModule (ILogger<QuotasModule> logger, GoogleSheetsSyncService sheets): ApplicationCommandModule<ApplicationCommandContext>
 {
+    private readonly GoogleSheetsSyncService _sheets = sheets;
+    
     [SubSlashCommand("estado", "Estado das quotas de um membro.")]
     public async Task<string> VerEstadoQuotas(User membro)
     {
@@ -77,7 +79,7 @@ public class QuotasModule (ILogger<QuotasModule> logger): ApplicationCommandModu
     /// <param name="quantidade">Quantas quotas a remover. 1 quota = 30 dias</param>
     /// <returns></returns>
     [SubSlashCommand("remover", "remover quotas (multiplos de 30 dias)à inscrição de um membro.")]
-    public async Task<string> RemoverQuota(User membro, int quantidade)
+    public async Task<InteractionMessageProperties> RemoverQuota(User membro, int quantidade)
     {
         var conn = new DatabaseProvider().CreateConnection();
         string username = membro.Username;
@@ -96,9 +98,26 @@ public class QuotasModule (ILogger<QuotasModule> logger): ApplicationCommandModu
             throw new LoggedEntityNotFoundException("Não foi possivel remover quotas, tenta novamente daqui a um pouco.", logger);
         }
         
-        string estadoActualizado = await VerEstadoQuotas(membro);
+        try
+        {
+            await _sheets.SyncSheetWithDbAsync(SheetnameEnum.Quotas);
+        }
+        catch
+        {
+            return new InteractionMessageProperties()
+                .WithContent("Quotas actualizadas com sucesso MAS o ficheiro Sheets não foi actualizado.")
+                .WithFlags(MessageFlags.Ephemeral);
+        }
         
-        return $"Foram adicionados {quantidade * 30} dias a {DbHelpers.GetMembroPrimeiroUltimoNome(membro, conn).Result}" +
-               $"\n{estadoActualizado}";
+        string estadoActualizado = await VerEstadoQuotas(membro);
+        return new InteractionMessageProperties()
+            .WithContent($"Foram adicionados {quantidade * 30} dias a {DbHelpers.GetMembroPrimeiroUltimoNome(membro, conn).Result}" +
+                         $"\n{estadoActualizado}")
+            .WithFlags(MessageFlags.Ephemeral);
+        
+        
+
+        
+
     }
 }

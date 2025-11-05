@@ -9,6 +9,7 @@ using NetCord.Hosting.Services;
 using NetCord.Hosting.Services.ApplicationCommands;
 using NetCord.Hosting.Services.ComponentInteractions;
 using NetCord.Services.ComponentInteractions;
+using SardineBot;
 using SardineBot.Modules;
 
 var builder = Host.CreateApplicationBuilder(args);
@@ -25,6 +26,7 @@ var token = builder.Configuration["Discord:Token"];
 #region Services
 builder.Services
     .AddMemoryCache()
+    .AddSingleton<GoogleSheetsSyncService>()
     .AddDiscordGateway(options =>
     {
         options.Token = token;
