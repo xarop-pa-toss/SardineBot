@@ -12,7 +12,7 @@ using SardineBot.Modules.Models;
 
 namespace SardineBot.Modules;
 
-public class AdicionarMembroModule(ILogger<AdicionarMembroModule> logger, IMemoryCache cache) : ApplicationCommandModule<ApplicationCommandContext>
+public class AdicionarMembroModule(IMemoryCache cache) : ApplicationCommandModule<ApplicationCommandContext>
 {
     private IMemoryCache _cache = cache;
     
@@ -30,9 +30,10 @@ public class AdicionarMembroModule(ILogger<AdicionarMembroModule> logger, IMemor
     }
 }
 
-public class CriarMembroBotoesModule(ILogger<CriarMembroBotoesModule> logger, IMemoryCache cache) : ComponentInteractionModule<ButtonInteractionContext>
+public class CriarMembroBotoesModule(IMemoryCache cache, GoogleSheetsSyncService sheets) : ComponentInteractionModule<ButtonInteractionContext>
 {
     private IMemoryCache _cache = cache;
+    private readonly GoogleSheetsSyncService _sheets = sheets;
     
     [ComponentInteraction("criar_membro_pag1_button")]
     public async Task<InteractionCallbackProperties> Pag1ButtonAsync()
@@ -150,19 +151,29 @@ public class CriarMembroBotoesModule(ILogger<CriarMembroBotoesModule> logger, IM
 
         if (!queryResult.Success)
         {
-            throw new LoggedEntityNotFoundException("Erro ao validar campos. Tenta outra vez daqui a um minuto.", logger);
+            throw new LoggedEntityNotFoundException("Erro ao validar campos. Tenta outra vez daqui a um minuto.");
         }
         
         _cache.Remove($"criar_membro_{callerUsername}");
-        
+
+        try
+        {
+            await _sheets.SyncSheetWithDbAsync(SheetnameEnum.Detalhes);
+        }
+        catch
+        {
+            return new InteractionMessageProperties()
+                .WithContent("Membro criado com sucesso MAS o ficheiro Sheets não foi actualizado.")
+                .WithFlags(MessageFlags.Ephemeral);
+        }
+
         return new InteractionMessageProperties()
             .WithContent("Membro criado com sucesso.")
             .WithFlags(MessageFlags.Ephemeral);
-        
     }
 }
 
-public class CriarMembroModalModule(ILogger<CriarMembroModalModule> logger, IMemoryCache cache) : ComponentInteractionModule<ModalInteractionContext>
+public class CriarMembroModalModule(IMemoryCache cache) : ComponentInteractionModule<ModalInteractionContext>
 {
     private readonly IMemoryCache _cache = cache;
     
