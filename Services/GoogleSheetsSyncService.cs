@@ -36,10 +36,10 @@ public class GoogleSheetsSyncService
         switch (sheetName)
         {
             case SheetnameEnum.Detalhes:
-                firstCell = "A3";
+                firstCell = "A2";
                 break;
             case SheetnameEnum.Quotas:
-                firstCell = "A2";
+                firstCell = "A3";
                 break;
         }
         
