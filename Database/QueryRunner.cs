@@ -1,14 +1,13 @@
 using System.Data;
 using Microsoft.Data.Sqlite;
-using NetCord;
 using SardineBot.Database.Models;
 namespace SardineBot.Database;
 
 public class QueryRunner
 {
     /// <summary>
-    /// If connection parameter is provided, it will not be closed regardless of method outcome.
-    /// If no connection is given, a new one is created which is disposed on return.
+    ///     If connection parameter is provided, it will not be closed regardless of method outcome.
+    ///     If no connection is given, a new one is created which is disposed on return.
     /// </summary>
     /// <param name="connection"></param>
     /// <param name="query"></param>
@@ -22,15 +21,11 @@ public class QueryRunner
             await conn.OpenAsync();
             return await RunQueryAsync(conn, query, args);
         }
-        else
+        if (connection.State == ConnectionState.Broken || connection.State == ConnectionState.Closed)
         {
-            if (connection.State == ConnectionState.Broken || connection.State == ConnectionState.Closed)
-            {
-                await connection.OpenAsync();    
-            }
-            return await RunQueryAsync(connection, query, args);
-
+            await connection.OpenAsync();
         }
+        return await RunQueryAsync(connection, query, args);
     }
 
     private async Task<QueryResult> RunQueryAsync(SqliteConnection conn, string query, (string queryVar, string value)[]? args)
@@ -46,7 +41,7 @@ public class QueryRunner
                 command.Parameters.AddWithValue(arg.queryVar, arg.value);
             }
         }
-        
+
         // Since only SELECT queries return rows, a case must be opened for ExecuteQuery and ExecuteNonQuery
         var isSelect = query.TrimStart().StartsWith("SELECT", StringComparison.OrdinalIgnoreCase);
 
@@ -61,10 +56,10 @@ public class QueryRunner
                     ErrorMessage = "No rows found."
                 };
             }
-            
+
             var resultTable = new DataTable();
             resultTable.Load(reader);
-            return new QueryResult()
+            return new QueryResult
             {
                 Success = true,
                 ResultTable = resultTable

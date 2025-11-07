@@ -1,13 +1,10 @@
 using System.Data;
-using System.Runtime.ExceptionServices;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
 using Microsoft.Extensions.Configuration;
 using SardineBot.Database;
-using SardineBot.ErrorHandling;
-
 namespace SardineBot;
 
 public class GoogleSheetsSyncService
@@ -32,56 +29,66 @@ public class GoogleSheetsSyncService
 
     public async Task SyncSheetWithDbAsync(SheetnameEnum sheetName)
     {
-        string firstCell = String.Empty;
+        var firstCell = string.Empty;
+        var deleteUpToCell = string.Empty;
         switch (sheetName)
         {
             case SheetnameEnum.Detalhes:
                 firstCell = "A2";
+                deleteUpToCell = "Z";
                 break;
             case SheetnameEnum.Quotas:
                 firstCell = "A3";
+                deleteUpToCell = "C";
                 break;
         }
+        var writeRange = $"{sheetName}!{firstCell}";
         
-        // Delete old data before updating
+        // Clear values before rewriting
         await _sheetsService.Spreadsheets.Values.Clear(
             new ClearValuesRequest(),
             _spreadsheetId,
-            $"{sheetName}!{firstCell}:Z"
+            $"{sheetName}!{firstCell}:{deleteUpToCell}"
         ).ExecuteAsync();
         
-        var range = $"{sheetName}!{firstCell}";
+        
+        // Fill new values
+        await _sheetsService.Spreadsheets.Values
+            .Clear(new ClearValuesRequest(), _spreadsheetId, writeRange)
+            .ExecuteAsync();
+
         var body = new ValueRange
         {
-            Values = GetDataFromDbToSheetValues(sheetName).Result
+            Range = writeRange,
+            Values = GetDataFromDbToSheetValuesAsync(sheetName).Result
         };
 
-        var request = _sheetsService.Spreadsheets.Values.Update(body, _spreadsheetId, range);
-        request.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.RAW;
+        var request = _sheetsService.Spreadsheets.Values.Update(body, _spreadsheetId, writeRange);
+        request.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.USERENTERED;
         await request.ExecuteAsync();
     }
 
-    private async Task<IList<IList<object>>> GetDataFromDbToSheetValues(SheetnameEnum sheetName)
+    private async Task<IList<IList<object>>> GetDataFromDbToSheetValuesAsync(SheetnameEnum sheetName)
     {
-        string query = String.Empty;
+        var query = string.Empty;
         switch (sheetName)
         {
             case SheetnameEnum.Detalhes:
-                query = """
-                        SELECT nome, inscricao_inicio, inscricao_fim, email, num_socio
-                        FROM membros
-                        """;
-                break;
-            case SheetnameEnum.Quotas:
                 query = """
                         SELECT nome, nif, morada, cod_postal, localidade, telef, email, discord_username, num_socio
                         FROM membros
                         """;
                 break;
+            case SheetnameEnum.Quotas:
+                query = """
+                        SELECT nome, inscricao_inicio, inscricao_fim 
+                        FROM membros
+                        """;
+                break;
         }
-        
+
         var result = await new QueryRunner().QueryAsync(
-            query: query
+            query
         );
 
         var values = new List<IList<object>>();
