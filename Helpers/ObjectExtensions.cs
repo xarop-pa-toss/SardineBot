@@ -24,9 +24,20 @@ public static class ObjectExtensions
         var mergedObj = new T();
         foreach (var prop in typeof(T).GetProperties())
         {
-            prop.SetValue(mergedObj, prop.GetValue(obj1) ?? prop.GetValue(obj2));
-        }
+            var value1 = prop.GetValue(obj1);
+            var value2 = prop.GetValue(obj2);
 
+            if (prop.PropertyType == typeof(string))
+            {
+                var str1 = value1 as string;
+                var str2 = value2 as string;
+                prop.SetValue(mergedObj, !string.IsNullOrEmpty(str1) ? str1 : str2);
+            }
+            else
+            {
+                prop.SetValue(mergedObj, value1 ?? value2);
+            }
+        }
         return mergedObj;
     }
 }
