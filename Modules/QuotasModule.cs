@@ -50,21 +50,37 @@ public class QuotasModule(ILogger<QuotasModule> logger, GoogleSheetsSyncService 
     {
         var conn = new DatabaseProvider().CreateConnection();
         var username = membro.Username;
+        var days = 30 * quantidade;
+        var daysSql = $"+{days} days";
 
         var queryResult = await new QueryRunner().QueryAsync(
             """
             UPDATE membros
-            SET inscricao_fim = DATE(inscricao_fim, '+30 days')
+            SET inscricao_fim = DATE(inscricao_fim, $daysSql)
             WHERE discord_username = $username
             """
-            , [("$username", username)]
+            , args:[
+                ("$username", username),
+                ("daysSql", daysSql)
+            ]
         );
 
         if (!queryResult.Success)
         {
             throw new LoggedEntityNotFoundException("Não foi possivel adicionar quotas, tenta novamente daqui a um pouco.", logger);
         }
-
+        
+        try
+        {
+            await _sheets.SyncSheetWithDbAsync(SheetnameEnum.Quotas);
+        }
+        catch
+        {
+            return new InteractionMessageProperties()
+                .WithContent("Quotas actualizadas com sucesso MAS o ficheiro Sheets não foi actualizado.")
+                .WithFlags(MessageFlags.Ephemeral);
+        }
+        
         var estadoActualizado = await VerEstadoQuotas(membro);
         return new InteractionMessageProperties()
             .WithContent($"Foram adicionados {quantidade * 30} dias a {DbHelpers.GetMembroPrimeiroUltimoNome(membro, conn).Result}" +
@@ -83,14 +99,19 @@ public class QuotasModule(ILogger<QuotasModule> logger, GoogleSheetsSyncService 
     {
         var conn = new DatabaseProvider().CreateConnection();
         var username = membro.Username;
+        var days = -30 * quantidade;
+        var daysSql = $"{days} days";
 
         var queryResult = await new QueryRunner().QueryAsync(
             """
             UPDATE membros
-            SET inscricao_fim = DATE(inscricao_fim, '-30 days')
+            SET inscricao_fim = DATE(inscricao_fim, $daysSql)
             WHERE discord_username = $username
             """
-            , [("$username", username)]
+            , args:[
+                ("$username", username),
+                ("daysSql", daysSql)
+            ]
         );
 
         if (!queryResult.Success)
@@ -111,7 +132,7 @@ public class QuotasModule(ILogger<QuotasModule> logger, GoogleSheetsSyncService 
 
         var estadoActualizado = await VerEstadoQuotas(membro);
         return new InteractionMessageProperties()
-            .WithContent($"Foram adicionados {quantidade * 30} dias a {DbHelpers.GetMembroPrimeiroUltimoNome(membro, conn).Result}" +
+            .WithContent($"Foram removidos {quantidade * 30} dias a {DbHelpers.GetMembroPrimeiroUltimoNome(membro, conn).Result}" +
                          $"\n{estadoActualizado}")
             .WithFlags(MessageFlags.Ephemeral);
     }
