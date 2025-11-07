@@ -1,3 +1,4 @@
+using NetCord;
 namespace SardineBot.Modules.Models;
 
 public class Membro
@@ -10,5 +11,5 @@ public class Membro
     public string Morada { get; set; } = string.Empty;
     public string CodPostal { get; set; } = string.Empty;
     public string Localidade { get; set; } = string.Empty;
-    public string DiscordUsername { get; set; } = string.Empty;
+    public User? DiscordUsername { get; set; } = null;
 }

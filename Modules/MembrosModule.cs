@@ -153,7 +153,7 @@ public class CriarMembroBotoesModule(IMemoryCache cache, GoogleSheetsSyncService
                 ("$morada", cachedMembro.Morada),
                 ("$cod_postal", cachedMembro.CodPostal),
                 ("$localidade", cachedMembro.Localidade),
-                ("discord_username", cachedMembro.DiscordUsername)
+                ("discord_username", cachedMembro.DiscordUsername?.Username ?? "")
             ]
         );
 

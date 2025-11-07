@@ -24,12 +24,12 @@ public static class TextInputExtensions
                         case "morada": membro.Morada = input.Value; break;
                         case "cod_postal": membro.CodPostal = input.Value; break;
                         case "localidade": membro.Localidade = input.Value; break;
-                        case "discord_username": membro.DiscordUsername = input.Value; break;
                     }
                     break;
             
-                case UserMenu menu when menu.CustomId == "discord_username":
-                    membro.DiscordUsername = menu.SelectedValues[0].ToString();
+                case UserMenu userMenu when userMenu.CustomId == "discord_username":
+                    membro.DiscordUsername = userMenu.SelectedValues[0];
+                    
                     break;
             }
         }
