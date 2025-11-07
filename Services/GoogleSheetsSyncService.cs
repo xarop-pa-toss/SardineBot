@@ -30,31 +30,41 @@ public class GoogleSheetsSyncService
     public async Task SyncSheetWithDbAsync(SheetnameEnum sheetName)
     {
         var firstCell = string.Empty;
+        var deleteUpToCell = string.Empty;
         switch (sheetName)
         {
             case SheetnameEnum.Detalhes:
                 firstCell = "A2";
+                deleteUpToCell = "Z";
                 break;
             case SheetnameEnum.Quotas:
                 firstCell = "A3";
+                deleteUpToCell = "C";
                 break;
         }
-
-        // Delete old data before updating
+        var writeRange = $"{sheetName}!{firstCell}";
+        
+        // Clear values before rewriting
         await _sheetsService.Spreadsheets.Values.Clear(
             new ClearValuesRequest(),
             _spreadsheetId,
-            $"{sheetName}!{firstCell}:Z"
+            $"{sheetName}!{firstCell}:{deleteUpToCell}"
         ).ExecuteAsync();
+        
+        
+        // Fill new values
+        await _sheetsService.Spreadsheets.Values
+            .Clear(new ClearValuesRequest(), _spreadsheetId, writeRange)
+            .ExecuteAsync();
 
-        var range = $"{sheetName}!{firstCell}";
         var body = new ValueRange
         {
+            Range = writeRange,
             Values = GetDataFromDbToSheetValuesAsync(sheetName).Result
         };
 
-        var request = _sheetsService.Spreadsheets.Values.Update(body, _spreadsheetId, range);
-        request.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.RAW;
+        var request = _sheetsService.Spreadsheets.Values.Update(body, _spreadsheetId, writeRange);
+        request.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.USERENTERED;
         await request.ExecuteAsync();
     }
 
@@ -71,7 +81,7 @@ public class GoogleSheetsSyncService
                 break;
             case SheetnameEnum.Quotas:
                 query = """
-                        SELECT nome, inscricao_inicio, inscricao_fim, email, num_socio
+                        SELECT nome, inscricao_inicio, inscricao_fim 
                         FROM membros
                         """;
                 break;
