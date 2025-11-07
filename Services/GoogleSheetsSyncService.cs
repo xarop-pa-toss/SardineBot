@@ -53,7 +53,7 @@ public class GoogleSheetsSyncService
         var range = $"{sheetName}!{firstCell}";
         var body = new ValueRange
         {
-            Values = GetDataFromDbToSheetValues(sheetName).Result
+            Values = GetDataFromDbToSheetValuesAsync(sheetName).Result
         };
 
         var request = _sheetsService.Spreadsheets.Values.Update(body, _spreadsheetId, range);
@@ -61,20 +61,20 @@ public class GoogleSheetsSyncService
         await request.ExecuteAsync();
     }
 
-    private async Task<IList<IList<object>>> GetDataFromDbToSheetValues(SheetnameEnum sheetName)
+    private async Task<IList<IList<object>>> GetDataFromDbToSheetValuesAsync(SheetnameEnum sheetName)
     {
         string query = String.Empty;
         switch (sheetName)
         {
             case SheetnameEnum.Detalhes:
                 query = """
-                        SELECT nome, inscricao_inicio, inscricao_fim, email, num_socio
+                        SELECT nome, nif, morada, cod_postal, localidade, telef, email, discord_username, num_socio
                         FROM membros
                         """;
                 break;
             case SheetnameEnum.Quotas:
                 query = """
-                        SELECT nome, nif, morada, cod_postal, localidade, telef, email, discord_username, num_socio
+                        SELECT nome, inscricao_inicio, inscricao_fim, email, num_socio
                         FROM membros
                         """;
                 break;

@@ -115,10 +115,5 @@ public class QuotasModule (ILogger<QuotasModule> logger, GoogleSheetsSyncService
             .WithContent($"Foram adicionados {quantidade * 30} dias a {DbHelpers.GetMembroPrimeiroUltimoNome(membro, conn).Result}" +
                          $"\n{estadoActualizado}")
             .WithFlags(MessageFlags.Ephemeral);
-        
-        
-
-        
-
     }
 }
