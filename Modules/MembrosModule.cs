@@ -18,7 +18,10 @@ public class AdicionarMembroModule(IMemoryCache cache) : ApplicationCommandModul
     
     [SlashCommand("criar_membro", "Criar novo membro da associação.")]
     public async Task<InteractionMessageProperties> CriarMembroMensagem()
-    {
+    {   
+        var callerUsername = Context.User.Username;
+        _cache.Remove($"criar_membro_{callerUsername}");
+        
         return new InteractionMessageProperties()
             .WithContent("Carrega nos botões para preencher os dados do novo membro")
             .AddComponents(new ActionRowProperties(new IButtonProperties[3]
@@ -39,7 +42,7 @@ public class CriarMembroBotoesModule(IMemoryCache cache, GoogleSheetsSyncService
     public async Task<InteractionCallbackProperties> Pag1ButtonAsync()
     {
         var callerUsername = Context.User.Username;
-        _cache.TryGetValue(callerUsername, out Membro membroCached);
+        _cache.TryGetValue($"criar_membro_{callerUsername}", out Membro membroCached);
             
         var callbackModal = InteractionCallback.Modal(new ModalProperties("criar_membro_pag1_modal", "Dados do novo membro")
             .AddComponents(
@@ -80,7 +83,7 @@ public class CriarMembroBotoesModule(IMemoryCache cache, GoogleSheetsSyncService
     public async Task<InteractionCallbackProperties> Pag2ButtonAsync()
     {
         var callerUsername = Context.User.Username;
-        _cache.TryGetValue(callerUsername, out Membro membroCached);
+        _cache.TryGetValue($"criar_membro_{callerUsername}", out Membro membroCached);
         
         var callbackModal = InteractionCallback.Modal(new ModalProperties("criar_membro_pag2_modal", "Dados do novo membro")
             .AddComponents(
@@ -99,6 +102,10 @@ public class CriarMembroBotoesModule(IMemoryCache cache, GoogleSheetsSyncService
                 {
                     Required = false,
                     Value = membroCached?.Localidade
+                }),
+                new LabelProperties("Discord User", new UserMenuProperties("discord_username")
+                {
+                    Required = false
                 })
             ));
 
@@ -134,8 +141,8 @@ public class CriarMembroBotoesModule(IMemoryCache cache, GoogleSheetsSyncService
         // Write to DB
         var queryResult = await new QueryRunner().QueryAsync(
             query: """
-                   INSERT INTO membros(nome, num_socio, nif, telef, email, morada, cod_postal, localidade)
-                   VALUES ($nome, $num_socio, $nif, $telef, $email, $morada, $cod_postal, $localidade)
+                   INSERT INTO membros(nome, num_socio, nif, telef, email, morada, cod_postal, localidade, discord_username)
+                   VALUES ($nome, $num_socio, $nif, $telef, $email, $morada, $cod_postal, $localidade, $discord_username)
                    """
             ,args: [
                 ("$nome", cachedMembro.Nome),
@@ -145,7 +152,8 @@ public class CriarMembroBotoesModule(IMemoryCache cache, GoogleSheetsSyncService
                 ("$email", cachedMembro.Email),
                 ("$morada", cachedMembro.Morada),
                 ("$cod_postal", cachedMembro.CodPostal),
-                ("$localidade", cachedMembro.Localidade)
+                ("$localidade", cachedMembro.Localidade),
+                ("discord_username", cachedMembro.DiscordUsername)
             ]
         );
 
@@ -180,7 +188,10 @@ public class CriarMembroModalModule(IMemoryCache cache) : ComponentInteractionMo
     [ComponentInteraction("criar_membro_pag1_modal")]
     public async Task<InteractionCallbackProperties> Pag1ModalAsync()
     {
+        var callerUsername = Context.User.Username;
+        
         WriteMembroModalToCache();
+        CacheLogger.LogObject(_cache, $"criar_membro_{callerUsername}");
         
         // Returning DeferredModifyMessage lets us return "nothing"
         return InteractionCallback.DeferredModifyMessage;
@@ -189,7 +200,11 @@ public class CriarMembroModalModule(IMemoryCache cache) : ComponentInteractionMo
     [ComponentInteraction("criar_membro_pag2_modal")]
     public async Task<InteractionCallbackProperties> Pag2ModalAsync()
     {
+        var callerUsername = Context.User.Username;
+        
         WriteMembroModalToCache();
+        CacheLogger.LogObject(_cache, $"criar_membro_{callerUsername}");
+        
         return InteractionCallback.DeferredModifyMessage;
     }
 
@@ -199,7 +214,6 @@ public class CriarMembroModalModule(IMemoryCache cache) : ComponentInteractionMo
         
         var membroDados = Context.Components.OfType<Label>()
             .Select(l => l.Component)
-            .OfType<TextInput>()
             .ToMembro();
 
         _cache.TryGetValue($"criar_membro_{callerUsername}", out Membro cachedMembro);
