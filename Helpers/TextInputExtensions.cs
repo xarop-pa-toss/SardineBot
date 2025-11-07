@@ -1,5 +1,4 @@
 using NetCord;
-using NetCord.Rest;
 using SardineBot.Modules.Models;
 namespace SardineBot.Database;
 
@@ -8,7 +7,7 @@ public static class TextInputExtensions
     public static Membro ToMembro(this IEnumerable<IComponent> components)
     {
         var membro = new Membro();
-        
+
         foreach (var comp in components)
         {
             switch (comp)
@@ -26,14 +25,14 @@ public static class TextInputExtensions
                         case "localidade": membro.Localidade = input.Value; break;
                     }
                     break;
-            
+
                 case UserMenu userMenu when userMenu.CustomId == "discord_username":
                     membro.DiscordUsername = userMenu.SelectedValues[0];
-                    
+
                     break;
             }
         }
-        
+
         return membro;
     }
 }

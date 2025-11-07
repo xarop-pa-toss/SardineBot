@@ -16,5 +16,4 @@ public class LoggedEntityNotFoundException : EntityNotFoundException
         logger?.LogError("EntityNotFoundException in {Caller} ({File}:{Line}): {Message}",
             caller, Path.GetFileName(file), line, message ?? "No message provided");
     }
-
 }

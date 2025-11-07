@@ -1,13 +1,10 @@
 using System.Data;
-using System.Runtime.ExceptionServices;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Services;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
 using Microsoft.Extensions.Configuration;
 using SardineBot.Database;
-using SardineBot.ErrorHandling;
-
 namespace SardineBot;
 
 public class GoogleSheetsSyncService
@@ -32,7 +29,7 @@ public class GoogleSheetsSyncService
 
     public async Task SyncSheetWithDbAsync(SheetnameEnum sheetName)
     {
-        string firstCell = String.Empty;
+        var firstCell = string.Empty;
         switch (sheetName)
         {
             case SheetnameEnum.Detalhes:
@@ -42,14 +39,14 @@ public class GoogleSheetsSyncService
                 firstCell = "A3";
                 break;
         }
-        
+
         // Delete old data before updating
         await _sheetsService.Spreadsheets.Values.Clear(
             new ClearValuesRequest(),
             _spreadsheetId,
             $"{sheetName}!{firstCell}:Z"
         ).ExecuteAsync();
-        
+
         var range = $"{sheetName}!{firstCell}";
         var body = new ValueRange
         {
@@ -63,7 +60,7 @@ public class GoogleSheetsSyncService
 
     private async Task<IList<IList<object>>> GetDataFromDbToSheetValuesAsync(SheetnameEnum sheetName)
     {
-        string query = String.Empty;
+        var query = string.Empty;
         switch (sheetName)
         {
             case SheetnameEnum.Detalhes:
@@ -79,9 +76,9 @@ public class GoogleSheetsSyncService
                         """;
                 break;
         }
-        
+
         var result = await new QueryRunner().QueryAsync(
-            query: query
+            query
         );
 
         var values = new List<IList<object>>();

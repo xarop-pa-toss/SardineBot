@@ -1,4 +1,3 @@
-using System;
 using System.Text.Json;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -8,7 +7,10 @@ public static class CacheLogger
     {
         if (cache.TryGetValue(key, out var obj))
         {
-            var json = JsonSerializer.Serialize(obj, new JsonSerializerOptions { WriteIndented = true });
+            var json = JsonSerializer.Serialize(obj, new JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
             Console.WriteLine($"Cache Key: {key}\n{json}");
         }
         else

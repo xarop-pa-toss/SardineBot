@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NetCord;
@@ -10,15 +9,13 @@ using NetCord.Hosting.Services.ApplicationCommands;
 using NetCord.Hosting.Services.ComponentInteractions;
 using NetCord.Services.ComponentInteractions;
 using SardineBot;
-using SardineBot.Modules;
-
 var builder = Host.CreateApplicationBuilder(args);
 
 builder.Environment.EnvironmentName = "Development";
 
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("Config/appsettings.json", optional: false, reloadOnChange: true);
+    .AddJsonFile("Config/appsettings.json", false, true);
 
 var token = builder.Configuration["Discord:Token"];
 
@@ -43,7 +40,6 @@ builder.Services
     .AddComponentInteractions<ModalInteraction, ModalInteractionContext>()
     .AddComponentInteractions<ButtonInteraction, ButtonInteractionContext>()
     .AddApplicationCommands();
-
 #endregion
 
 var host = builder.Build();
