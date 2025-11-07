@@ -20,7 +20,7 @@ public class AdicionarMembroModule(IMemoryCache cache) : ApplicationCommandModul
 
         return new InteractionMessageProperties()
             .WithContent("Carrega nos botões para preencher os dados do novo membro")
-            .AddComponents(new ActionRowProperties(new IButtonProperties[3]
+            .AddComponents(new ActionRowProperties(new IButtonProperties[]
             {
                 new ButtonProperties("criar_membro_pag1_button", "Info 1", ButtonStyle.Primary), new ButtonProperties("criar_membro_pag2_button", "Info 2", ButtonStyle.Primary),
                 new ButtonProperties("criar_membro_submeter_button", "Submeter", ButtonStyle.Success)
@@ -37,7 +37,7 @@ public class CriarMembroBotoesModule(IMemoryCache cache, GoogleSheetsSyncService
     public async Task<InteractionCallbackProperties> Pag1ButtonAsync()
     {
         var callerUsername = Context.User.Username;
-        _cache.TryGetValue($"criar_membro_{callerUsername}", out Membro membroCached);
+        _cache.TryGetValue($"criar_membro_{callerUsername}", out Membro? membroCached);
 
         var callbackModal = InteractionCallback.Modal(new ModalProperties("criar_membro_pag1_modal", "Dados do novo membro")
             .AddComponents(
@@ -78,7 +78,7 @@ public class CriarMembroBotoesModule(IMemoryCache cache, GoogleSheetsSyncService
     public async Task<InteractionCallbackProperties> Pag2ButtonAsync()
     {
         var callerUsername = Context.User.Username;
-        _cache.TryGetValue($"criar_membro_{callerUsername}", out Membro membroCached);
+        _cache.TryGetValue($"criar_membro_{callerUsername}", out Membro? membroCached);
 
         var callbackModal = InteractionCallback.Modal(new ModalProperties("criar_membro_pag2_modal", "Dados do novo membro")
             .AddComponents(
@@ -112,7 +112,7 @@ public class CriarMembroBotoesModule(IMemoryCache cache, GoogleSheetsSyncService
     {
         var callerUsername = Context.User.Username;
 
-        if (!_cache.TryGetValue($"criar_membro_{callerUsername}", out Membro cachedMembro))
+        if (!_cache.TryGetValue($"criar_membro_{callerUsername}", out Membro? cachedMembro))
         {
             return new InteractionMessageProperties()
                 .WithContent("Formulário não foi preenchido.")
@@ -120,19 +120,19 @@ public class CriarMembroBotoesModule(IMemoryCache cache, GoogleSheetsSyncService
         }
 
         // Validar Membro
-        if (string.IsNullOrEmpty(cachedMembro.Nome))
-        {
-            return new InteractionMessageProperties().WithContent("Nome não pode estar vazio.");
-        }
-        if (!int.TryParse(cachedMembro.NumSocio, out var numSocioCheck))
+        // if (string.IsNullOrEmpty(cachedMembro.Nome))
+        // {
+        //     return new InteractionMessageProperties().WithContent("Nome não pode estar vazio.");
+        // }
+        if (string.IsNullOrEmpty(cachedMembro!.NumSocio) && !int.TryParse(cachedMembro.NumSocio, out _))
         {
             return new InteractionMessageProperties().WithContent("Número de sócio não é um número válido.");
         }
-        if (!cachedMembro.Nif.All(char.IsDigit))
+        if (string.IsNullOrEmpty(cachedMembro.Nif) && !cachedMembro.Nif.All(char.IsDigit))
         {
             return new InteractionMessageProperties().WithContent("NIF não é um número válido.");
         }
-        if (!cachedMembro.Telef.All(char.IsDigit))
+        if (string.IsNullOrEmpty(cachedMembro.Telef) && !cachedMembro.Telef.All(char.IsDigit))
         {
             return new InteractionMessageProperties().WithContent("Número de telefone não é um número válido.");
         }
@@ -215,7 +215,7 @@ public class CriarMembroModalModule(IMemoryCache cache) : ComponentInteractionMo
             .Select(l => l.Component)
             .ToMembro();
 
-        _cache.TryGetValue($"criar_membro_{callerUsername}", out Membro cachedMembro);
+        _cache.TryGetValue($"criar_membro_{callerUsername}", out Membro? cachedMembro);
         if (cachedMembro is not null)
         {
             var mergedMembro = ObjectExtensions.Merge(membroDados, cachedMembro);
